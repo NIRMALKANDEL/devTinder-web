@@ -19,7 +19,7 @@ const Login = () => {
           withCredentials: true,
         }
       );
-      console.log("Login sucessful", res.data);
+      console.log("Login sucessful", res);
     } catch (err) {
       console.error("login ERROR", err);
     }
