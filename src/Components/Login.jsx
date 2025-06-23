@@ -30,7 +30,7 @@ const Login = () => {
       dispatch(addUser(res.data));
       return navigate("/");
     } catch (err) {
-      setError(err?.response?.data || "somethind went wrong ");
+      setError(err?.response?.data || "something went wrong ");
       console.error(err);
     }
   };
