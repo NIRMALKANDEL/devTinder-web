@@ -1,10 +1,10 @@
 import React from "react";
 
-const UserCard = ({ User }) => {
-  const { firstName, lastName, about, photoURL, age, gender } = User;
+const UserCard = ({ user }) => {
+  const { firstName, lastName, about, photoURL, age, gender } = user;
 
   return (
-    <div className='card w-84 bg-gray-100 shadow-lg rounded-xl overflow-hidden'>
+    <div className='card w-96 bg-gray-100 shadow-lg rounded-xl overflow-hidden'>
       <figure className='h-72 overflow-hidden'>
         <img
           src={photoURL}
