@@ -19,22 +19,14 @@ const EditProfile = ({ user }) => {
   const dispatch = useDispatch();
 
   const saveProfile = async () => {
-    console.log("BEING CALLED");
     setError("");
     try {
       const res = await axios.patch(
         BASE_URL + "/profile/edit",
-        {
-          firstName,
-          lastName,
-          about,
-          photoURL,
-          age,
-          gender,
-        },
+        { firstName, lastName, about, photoURL, age, gender },
         { withCredentials: true }
       );
-      console.log("1111", res);
+
       dispatch(addUser(res?.data?.data));
       setShowToast(true);
       setTimeout(() => {
