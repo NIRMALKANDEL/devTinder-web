@@ -55,7 +55,18 @@ const NavBar = () => {
                 </Link>
               </li>
               <li>
-                <a className='hover:bg-gray-100 rounded-lg p-2'>Settings</a>
+                <Link
+                  to='/connections'
+                  className='hover:bg-gray-100 rounded-lg p-2'>
+                  Connections
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to='/requests'
+                  className='hover:bg-gray-100 rounded-lg p-2'>
+                  Requests
+                </Link>
               </li>
               <li>
                 <a
