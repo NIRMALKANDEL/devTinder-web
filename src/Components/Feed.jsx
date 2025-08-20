@@ -16,23 +16,58 @@ const Feed = () => {
       const res = await axios.get(BASE_URL + "/feed", {
         withCredentials: true,
       });
-      dispatch(addFeed(res.data));
+      dispatch(addFeed(res?.data?.data));
     } catch (err) {
-      console.error(err);
+      //TODO: handle error
     }
   };
 
   useEffect(() => {
     getFeed();
   }, []);
+  if (!feed) return;
+
+  if (feed.length <= 0)
+    return <h1 className='flex justify-center my-10'>No new users founds!</h1>;
 
   return (
-    feed?.data?.length > 0 && (
+    feed && (
       <div className='flex justify-center my-10'>
-        <UserCard user={feed.data[0]} />
+        <UserCard user={feed[0]} />
       </div>
     )
   );
 };
-
 export default Feed;
+
+// const Feed = () => {
+//   const feed = useSelector((store) => store.feed);
+//   const dispatch = useDispatch();
+
+//   const getFeed = async () => {
+//     if (feed) return;
+//     try {
+//       const res = await axios.get(BASE_URL + "/feed", {
+//         withCredentials: true,
+//       });
+//       dispatch(addFeed(res.data));
+//     } catch (err) {
+//       console.error(err);
+//     }
+//   };
+
+//   useEffect(() => {
+//     getFeed();
+//   }, []);
+//   if (!feed) return;
+//   if (feed.length <= 0) return <h1>NO More User Found</h1>;
+//   return (
+//     feed?.data?.length > 0 && (
+//       <div className='flex justify-center my-10'>
+//         <UserCard user={feed.data[0]} />
+//       </div>
+//     )
+//   );
+// };
+
+// export default Feed;
