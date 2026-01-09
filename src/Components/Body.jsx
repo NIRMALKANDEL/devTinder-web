@@ -3,9 +3,9 @@ import NavBar from "./NavBar";
 import { Outlet, useNavigate } from "react-router-dom";
 import Footer from "./Footer";
 import axios from "axios";
-import { BASE_URL } from "../utils /constants";
+import { BASE_URL } from "../utils/constants";
 import { useDispatch, useSelector } from "react-redux";
-import { addUser } from "../utils /userSlice";
+import { addUser } from "../utils/userSlice";
 
 const Body = () => {
   const dispatch = useDispatch();
@@ -14,16 +14,22 @@ const Body = () => {
 
   const fetchUser = async () => {
     if (userData) return;
+
     try {
       const res = await axios.get(BASE_URL + "/profile/view", {
         withCredentials: true,
       });
-      dispatch(addUser(res.data));
+
+      // ✅ FIX: store only payload
+      if (res?.data?.payload) {
+        dispatch(addUser(res.data.payload));
+      }
     } catch (err) {
-      if (err.status === 401) {
+      // ✅ FIX: correct axios error handling
+      if (err?.response?.status === 401) {
         navigate("/login");
       }
-      console.error(err);
+      console.error("Profile fetch failed:", err);
     }
   };
 

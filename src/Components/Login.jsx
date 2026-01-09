@@ -1,10 +1,9 @@
 import axios from "axios";
-import { useState } from "react";
-import React from "react";
+import React, { useState } from "react";
 import { useDispatch } from "react-redux";
-import { addUser } from "../utils /userSlice";
+import { addUser } from "../utils/userSlice";
 import { useNavigate } from "react-router-dom";
-import { BASE_URL } from "../utils /constants";
+import { BASE_URL } from "../utils/constants";
 
 const Login = () => {
   const [emailId, setEmailID] = useState("");
@@ -22,17 +21,19 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
     setError("");
+
     try {
       const res = await axios.post(
-        BASE_URL + "/login",
+        `${BASE_URL}/login`,
         { emailId, password },
         { withCredentials: true }
       );
-      dispatch(addUser(res.data));
+
+      // ✅ ALWAYS dispatch actual user object
+      dispatch(addUser(res?.data?.payload));
       navigate("/");
     } catch (err) {
-      setError(err?.response?.data?.message || "Something went wrong");
-      console.error(err);
+      setError(err?.response?.data?.message || "Login failed");
     } finally {
       setLoading(false);
     }
@@ -42,17 +43,18 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
     setError("");
+
     try {
       const res = await axios.post(
-        BASE_URL + "/signup",
+        `${BASE_URL}/signup`,
         { firstName, lastName, emailId, password },
         { withCredentials: true }
       );
-      dispatch(addUser(res.data.data));
-      navigate("/profile ");
+
+      dispatch(addUser(res?.data?.data));
+      navigate("/profile");
     } catch (err) {
-      setError(err?.response?.data?.message || "Something went wrong");
-      console.error(err);
+      setError(err?.response?.data?.message || "Signup failed");
     } finally {
       setLoading(false);
     }
@@ -69,77 +71,48 @@ const Login = () => {
           <form onSubmit={isLoginForm ? handleLogin : handleSignup}>
             {!isLoginForm && (
               <>
-                <label className='form-control w-full max-w-xs py-2'>
-                  <div className='label'>
-                    <span className='label-text'>First Name</span>
-                  </div>
-                  <input
-                    type='text'
-                    value={firstName}
-                    required
-                    className='input input-bordered w-full max-w-xs'
-                    onChange={(e) => setFirstName(e.target.value)}
-                  />
-                </label>
-                <label className='form-control w-full max-w-xs py-2'>
-                  <div className='label'>
-                    <span className='label-text'>Last Name</span>
-                  </div>
-                  <input
-                    type='text'
-                    value={lastName}
-                    required
-                    className='input input-bordered w-full max-w-xs'
-                    onChange={(e) => setLastName(e.target.value)}
-                  />
-                </label>
+                <input
+                  className='input input-bordered w-full my-2'
+                  placeholder='First Name'
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                />
+                <input
+                  className='input input-bordered w-full my-2'
+                  placeholder='Last Name'
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                />
               </>
             )}
 
-            <label className='form-control w-full max-w-xs py-2'>
-              <div className='label'>
-                <span className='label-text'>Email ID</span>
-              </div>
-              <input
-                type='email'
-                value={emailId}
-                required
-                className='input input-bordered w-full max-w-xs'
-                onChange={(e) => setEmailID(e.target.value)}
-              />
-            </label>
+            <input
+              type='email'
+              className='input input-bordered w-full my-2'
+              placeholder='Email'
+              value={emailId}
+              onChange={(e) => setEmailID(e.target.value)}
+            />
 
-            <label className='form-control w-full max-w-xs py-2'>
-              <div className='label'>
-                <span className='label-text'>Password</span>
-              </div>
-              <input
-                type='password'
-                value={password}
-                required
-                className='input input-bordered w-full max-w-xs'
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </label>
+            <input
+              type='password'
+              className='input input-bordered w-full my-2'
+              placeholder='Password'
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
 
-            {error && <p className='text-red-500 text-sm mt-2'>{error}</p>}
+            {error && <p className='text-red-500 text-sm'>{error}</p>}
 
-            <div className='card-actions justify-center mt-4'>
-              <button
-                type='submit'
-                className='btn btn-primary'
-                disabled={loading}>
-                {loading ? "Processing..." : isLoginForm ? "Login" : "Sign Up"}
-              </button>
-            </div>
+            <button className='btn btn-primary w-full mt-4' disabled={loading}>
+              {loading ? "Please wait..." : isLoginForm ? "Login" : "Sign Up"}
+            </button>
           </form>
 
           <p
-            className='cursor-pointer text-blue-500 mt-4 text-center'
-            onClick={() => setIsLoginForm((prev) => !prev)}>
-            {isLoginForm
-              ? "New user? Sign up here"
-              : "Existing user? Login here"}
+            className='text-blue-500 text-center mt-4 cursor-pointer'
+            onClick={() => setIsLoginForm(!isLoginForm)}>
+            {isLoginForm ? "New user? Sign up" : "Existing user? Login"}
           </p>
         </div>
       </div>
