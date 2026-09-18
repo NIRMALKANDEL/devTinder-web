@@ -33,7 +33,8 @@ const EditProfile = ({ user }) => {
         setShowToast(false);
       }, 2000);
     } catch (err) {
-      setError(err.response?.data || "Something went wrong");
+      const message = err.response?.data?.error;
+      setError(typeof message === "string" ? message : "Something went wrong");
     }
   };
 
