@@ -62,7 +62,8 @@ const Login = () => {
 
   return (
     <div className='flex justify-center my-10'>
-      <div className='card bg-base-300 w-96 shadow-xl'>
+      {/* UI: w-96 -> w-full max-w-sm so the card fits small phones; same look otherwise */}
+      <div className='card bg-base-300 w-full max-w-sm shadow-xl animate-card-in'>
         <div className='card-body'>
           <h2 className='card-title justify-center'>
             {isLoginForm ? "Login" : "Sign Up"}
@@ -110,7 +111,7 @@ const Login = () => {
           </form>
 
           <p
-            className='text-blue-500 text-center mt-4 cursor-pointer'
+            className='text-blue-500 text-center mt-4 cursor-pointer hover:underline select-none'
             onClick={() => setIsLoginForm(!isLoginForm)}>
             {isLoginForm ? "New user? Sign up" : "Existing user? Login"}
           </p>

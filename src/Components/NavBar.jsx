@@ -1,7 +1,9 @@
 import axios from "axios";
-import React, { useEffect } from "react";
+import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
+import Avatar from "./Avatar";
+import { FlameIcon, InboxIcon, LogoutIcon, UserIcon, UsersIcon } from "./Icons";
 import { BASE_URL } from "../utils/constants";
 import { removeUser } from "../utils/userSlice";
 
@@ -20,60 +22,104 @@ const NavBar = () => {
     }
   };
 
+  // UI: closes the focus-based daisyUI dropdown after a menu item is clicked
+  const closeMenu = () => document.activeElement?.blur();
+
+  // UI: highlight the link for the current page
+  const navLinkClass = ({ isActive }) =>
+    `btn btn-ghost btn-sm gap-2 ${isActive ? "btn-active text-primary" : ""}`;
+  const menuLinkClass = ({ isActive }) =>
+    `rounded-lg p-2 gap-3 ${isActive ? "menu-active" : ""}`;
+
   return (
-    <div className='navbar bg-base-300 shadow-sm'>
+    // UI: sticky navbar so navigation is always reachable
+    <div className='navbar bg-base-300 shadow-sm sticky top-0 z-30 px-2 sm:px-4'>
       <div className='flex-1'>
-        <Link to='/' className='btn btn-ghost text-xl'>
+        <Link to='/' className='btn btn-ghost text-xl gap-2'>
+          <FlameIcon className='w-6 h-6 text-primary' />
           DevTinder
         </Link>
       </div>
 
       {user && (
-        <div className='flex items-center gap-4'>
+        <div className='flex items-center gap-2 sm:gap-4'>
+          {/* UI: quick links to existing pages on larger screens */}
+          <nav className='hidden md:flex items-center gap-1'>
+            <NavLink to='/' end className={navLinkClass}>
+              <FlameIcon className='w-4 h-4' />
+              Feed
+            </NavLink>
+            <NavLink to='/connections' className={navLinkClass}>
+              <UsersIcon className='w-4 h-4' />
+              Connections
+            </NavLink>
+            <NavLink to='/requests' className={navLinkClass}>
+              <InboxIcon className='w-4 h-4' />
+              Requests
+            </NavLink>
+          </nav>
+
           {/* Welcome Message */}
-          <div className='form-control'>Welcome {user.firstName}</div>
+          <div className='hidden sm:block text-sm'>
+            Welcome <span className='font-semibold'>{user.firstName}</span>
+          </div>
 
           {/* Profile Dropdown */}
-          <div className='dropdown dropdown-end mx-6'>
+          <div className='dropdown dropdown-end mr-2'>
             <div
               tabIndex={0}
               role='button'
               aria-label='User menu'
-              className='btn btn-ghost btn-circle avatar'>
-              <div className='w-10 rounded-full'>
-                <img alt='User Avatar' src={user.photoURL} />
-              </div>
+              className='btn btn-ghost btn-circle avatar transition-transform hover:scale-105'>
+              <Avatar
+                src={user.photoURL}
+                firstName={user.firstName}
+                lastName={user.lastName}
+                className='w-10 h-10 ring-2 ring-primary ring-offset-2 ring-offset-base-300'
+                textClass='text-sm'
+              />
             </div>
             <ul
               tabIndex={0}
-              className='menu menu-sm dropdown-content bg-base-100 rounded-box z-10 mt-3 w-52 p-2 shadow'>
-              <li>
-                <Link
-                  to='/profile'
-                  className='justify-between hover:bg-gray-100 rounded-lg p-2'>
-                  Profile <span className='badge'>New</span>
-                </Link>
+              onClick={closeMenu}
+              className='menu menu-sm dropdown-content bg-base-100 rounded-box z-40 mt-3 w-56 p-2 shadow-xl'>
+              <li className='menu-title sm:hidden'>
+                Hi, {user.firstName}
               </li>
               <li>
-                <Link
-                  to='/connections'
-                  className='hover:bg-gray-100 rounded-lg p-2'>
+                <NavLink to='/profile' className={menuLinkClass}>
+                  <UserIcon className='w-4 h-4' />
+                  Profile <span className='badge badge-primary badge-sm ml-auto'>New</span>
+                </NavLink>
+              </li>
+              {/* UI: Feed link only needed in the dropdown on small screens */}
+              <li className='md:hidden'>
+                <NavLink to='/' end className={menuLinkClass}>
+                  <FlameIcon className='w-4 h-4' />
+                  Feed
+                </NavLink>
+              </li>
+              <li>
+                <NavLink to='/connections' className={menuLinkClass}>
+                  <UsersIcon className='w-4 h-4' />
                   Connections
-                </Link>
+                </NavLink>
               </li>
               <li>
-                <Link
-                  to='/requests'
-                  className='hover:bg-gray-100 rounded-lg p-2'>
+                <NavLink to='/requests' className={menuLinkClass}>
+                  <InboxIcon className='w-4 h-4' />
                   Requests
-                </Link>
+                </NavLink>
               </li>
+              <li aria-hidden='true' className='border-t border-base-300 my-1'></li>
               <li>
-                <a
-                  className='hover:bg-gray-100 rounded-lg p-2'
+                <button
+                  type='button'
+                  className='rounded-lg p-2 gap-3 text-error'
                   onClick={handelLogout}>
+                  <LogoutIcon className='w-4 h-4' />
                   Logout
-                </a>
+                </button>
               </li>
             </ul>
           </div>

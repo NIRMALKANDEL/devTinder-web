@@ -1,12 +1,17 @@
 import axios from "axios";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { BASE_URL } from "../utils/constants";
 import { useDispatch, useSelector } from "react-redux";
 import { addConnections } from "../utils/connectionSlice";
+import PageHeader from "./PageHeader";
+import EmptyState from "./EmptyState";
+import Avatar from "./Avatar";
+import { UsersIcon } from "./Icons";
 
 const Connections = () => {
   const connections = useSelector((store) => store.connections);
   const dispatch = useDispatch();
+  const [loading, setLoading] = useState(true);
 
   const fetchConnections = async () => {
     try {
@@ -18,6 +23,8 @@ const Connections = () => {
     } catch (err) {
       console.error("Error fetching connections:", err);
       dispatch(addConnections([]));
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -25,48 +32,92 @@ const Connections = () => {
     fetchConnections();
   }, []);
 
+  // UI: skeleton cards while connections are loading (avoids flashing the empty state)
+  if (loading) {
+    return (
+      <div className='max-w-5xl mx-auto my-10'>
+        <PageHeader title='Connections' />
+        <div className='grid gap-6 sm:grid-cols-2 lg:grid-cols-3'>
+          {[1, 2, 3].map((n) => (
+            <div key={n} className='card bg-base-300 shadow-xl'>
+              <div className='card-body items-center gap-3'>
+                <div className='skeleton w-24 h-24 rounded-full'></div>
+                <div className='skeleton h-5 w-2/3'></div>
+                <div className='skeleton h-4 w-1/3'></div>
+                <div className='skeleton h-4 w-full'></div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   if (!connections || connections.length === 0) {
     return (
-      <h1 className='font-bold text-2xl text-center my-10'>
-        No Connections Found
-      </h1>
+      <div className='max-w-5xl mx-auto my-10'>
+        <PageHeader title='Connections' />
+        <EmptyState
+          icon={<UsersIcon className='w-7 h-7' />}
+          title='No Connections Found'
+          message='Start exploring the feed and connect with other developers.'
+          actionText='Go to feed'
+          actionTo='/'
+        />
+      </div>
     );
   }
 
   return (
-    <div className='flex flex-col items-center my-10 space-y-4'>
-      <h1 className='font-bold text-2xl'>Connections</h1>
+    <div className='max-w-5xl mx-auto my-10'>
+      <PageHeader
+        title='Connections'
+        subtitle={`${connections.length} ${
+          connections.length === 1 ? "connection" : "connections"
+        }`}
+      />
 
-      {connections.map((connection) => (
-        <div
-          key={connection._id}
-          className='p-4 border rounded-lg shadow-sm w-80 text-center'>
-          <img
-            src={connection.photoURL}
-            alt={`${connection.firstName} ${connection.lastName}`}
-            className='w-20 h-20 mx-auto rounded-full object-cover mb-2'
-          />
-          <h2 className='text-lg font-semibold'>
-            {connection.firstName} {connection.lastName}
-          </h2>
-          <p className='text-sm text-gray-600 mb-1'>
-            {connection.age} {connection.gender}
-          </p>
-          <p className='text-sm text-gray-600 mb-2'>{connection.about}</p>
+      {/* UI: responsive grid of cards styled like the login card */}
+      <div className='grid gap-6 sm:grid-cols-2 lg:grid-cols-3'>
+        {connections.map((connection, i) => (
+          <div
+            key={connection._id}
+            style={{ animationDelay: `${Math.min(i, 8) * 50}ms` }}
+            className='card bg-base-300 shadow-xl animate-card-in transition-transform duration-200 hover:-translate-y-1'>
+            <div className='card-body items-center text-center'>
+              <Avatar
+                src={connection.photoURL}
+                firstName={connection.firstName}
+                lastName={connection.lastName}
+                className='w-24 h-24 ring-2 ring-primary ring-offset-2 ring-offset-base-300'
+              />
+              <h2 className='card-title mt-2'>
+                {connection.firstName} {connection.lastName}
+              </h2>
+              {(connection.age || connection.gender) && (
+                <p className='text-sm opacity-70 capitalize flex-none'>
+                  {[connection.age, connection.gender].filter(Boolean).join(" · ")}
+                </p>
+              )}
+              {connection.about && (
+                <p className='text-sm opacity-80 line-clamp-3'>
+                  {connection.about}
+                </p>
+              )}
 
-          {connection.skills?.length > 0 && (
-            <div className='flex flex-wrap justify-center gap-2 mt-2'>
-              {connection.skills.map((skill, i) => (
-                <span
-                  key={i}
-                  className='px-2 py-1 bg-gray-200 text-sm rounded-full'>
-                  {skill}
-                </span>
-              ))}
+              {connection.skills?.length > 0 && (
+                <div className='flex flex-wrap justify-center gap-2 mt-2'>
+                  {connection.skills.map((skill, i) => (
+                    <span key={i} className='badge badge-primary badge-outline'>
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
-          )}
-        </div>
-      ))}
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
