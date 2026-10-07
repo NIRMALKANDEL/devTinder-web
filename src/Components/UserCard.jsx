@@ -1,44 +1,85 @@
 import axios from "axios";
-import React from "react";
+import React, { useState } from "react";
 import { BASE_URL } from "../utils/constants";
 
 import { useDispatch } from "react-redux";
 import { removeUserFromFeed } from "../utils/feedSlice";
+import { CloseIcon, HeartIcon } from "./Icons";
 
 const UserCard = ({ user }) => {
   const { _id, firstName, lastName, photoURL, age, gender, about } = user;
   const dispatch = useDispatch();
+  const [sending, setSending] = useState(null); // status being sent, or null
 
   const handleSendRequest = async (status, userId) => {
+    setSending(status);
     try {
-      const res = await axios.post(
+      await axios.post(
         BASE_URL + "/request/send/" + status + "/" + userId,
         {},
         { withCredentials: true }
       );
       dispatch(removeUserFromFeed(userId));
-    } catch (err) {}
+    } catch (err) {
+      console.error("Error sending request:", err);
+    } finally {
+      setSending(null);
+    }
   };
 
+  // UI: initials shown when there is no photo (e.g. live preview in Edit Profile)
+  const initials =
+    `${firstName?.[0] || ""}${lastName?.[0] || ""}`.toUpperCase() || "?";
+
   return (
-    <div className='card bg-base-300 w-96 shadow-xl'>
-      <figure>
-        <img src={user.photoURL} alt='photo' />
+    <div className='card bg-base-300 w-full max-w-sm shadow-xl overflow-hidden'>
+      {/* UI: fixed-height photo so every card is the same size */}
+      <figure className='h-80 bg-base-200'>
+        {photoURL ? (
+          <img
+            src={user.photoURL}
+            alt={`${firstName || ""} ${lastName || ""}`.trim() || "photo"}
+            className='w-full h-full object-cover'
+          />
+        ) : (
+          <div className='w-full h-full flex items-center justify-center text-6xl font-bold text-primary opacity-60'>
+            {initials}
+          </div>
+        )}
       </figure>
       <div className='card-body'>
-        <h2 className='card-title'>{firstName + " " + lastName}</h2>
-        {age && gender && <p>{age + ", " + gender}</p>}
-        <p>{about}</p>
+        <h2 className='card-title text-2xl'>
+          {(firstName || "") + " " + (lastName || "")}
+        </h2>
+        {age && gender && (
+          <p className='flex-none text-sm opacity-70 capitalize'>
+            {age + " · " + gender}
+          </p>
+        )}
+        {about && <p className='opacity-80 text-sm leading-relaxed'>{about}</p>}
         {_id && (
-          <div className='card-actions justify-center my-4'>
+          // UI: Ignore = outlined/red, Interested = primary; disabled + spinner while sending
+          <div className='card-actions justify-center gap-4 mt-4'>
             <button
-              className='btn btn-primary'
+              className='btn btn-outline btn-error rounded-full px-6 gap-2 transition-transform active:scale-95'
+              disabled={!!sending}
               onClick={() => handleSendRequest("ignored", _id)}>
+              {sending === "ignored" ? (
+                <span className='loading loading-spinner loading-sm'></span>
+              ) : (
+                <CloseIcon />
+              )}
               Ignore
             </button>
             <button
-              className='btn btn-secondary'
+              className='btn btn-primary rounded-full px-6 gap-2 transition-transform active:scale-95'
+              disabled={!!sending}
               onClick={() => handleSendRequest("interested", _id)}>
+              {sending === "interested" ? (
+                <span className='loading loading-spinner loading-sm'></span>
+              ) : (
+                <HeartIcon />
+              )}
               Interested
             </button>
           </div>

@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import NavBar from "./NavBar";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import Footer from "./Footer";
 import axios from "axios";
 import { BASE_URL } from "../utils/constants";
@@ -11,6 +11,8 @@ const Body = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const userData = useSelector((store) => store.user);
+  // UI: used only to re-trigger the page entry animation on route change
+  const location = useLocation();
 
   const fetchUser = async () => {
     if (userData) return;
@@ -38,11 +40,16 @@ const Body = () => {
   }, []);
 
   return (
-    <>
+    // UI: full-height column so the footer sits at the bottom without covering content
+    <div className='min-h-screen flex flex-col bg-base-100'>
       <NavBar />
-      <Outlet />
+      <main
+        key={location.pathname}
+        className='flex-1 w-full max-w-6xl mx-auto px-4 animate-page-in'>
+        <Outlet />
+      </main>
       <Footer />
-    </>
+    </div>
   );
 };
 
