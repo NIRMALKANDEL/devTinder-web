@@ -67,3 +67,11 @@ export const LogoutIcon = ({ className = "w-5 h-5" }) => (
     <path d='M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9' />
   </svg>
 );
+
+// Added: external-link icon for the portfolio website link
+export const LinkIcon = ({ className = "w-5 h-5" }) => (
+  <svg {...base} className={className}>
+    <path d='M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6' />
+    <path d='M15 3h6v6M10 14L21 3' />
+  </svg>
+);

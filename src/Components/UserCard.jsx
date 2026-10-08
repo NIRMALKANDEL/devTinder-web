@@ -4,12 +4,21 @@ import { BASE_URL } from "../utils/constants";
 
 import { useDispatch } from "react-redux";
 import { removeUserFromFeed } from "../utils/feedSlice";
-import { CloseIcon, HeartIcon } from "./Icons";
+import { CloseIcon, HeartIcon, LinkIcon } from "./Icons";
 
 const UserCard = ({ user }) => {
-  const { _id, firstName, lastName, photoURL, age, gender, about } = user;
+  // Added: pull skills + portfolioUrl so the card can show chips and a portfolio link
+  const { _id, firstName, lastName, photoURL, age, gender, about, skills, portfolioUrl } =
+    user;
   const dispatch = useDispatch();
   const [sending, setSending] = useState(null); // status being sent, or null
+
+  // Added: make the portfolio link openable even if the user typed it without a protocol
+  const portfolioHref = portfolioUrl
+    ? /^https?:\/\//i.test(portfolioUrl)
+      ? portfolioUrl
+      : `https://${portfolioUrl}`
+    : "";
 
   const handleSendRequest = async (status, userId) => {
     setSending(status);
@@ -57,6 +66,27 @@ const UserCard = ({ user }) => {
           </p>
         )}
         {about && <p className='opacity-80 text-sm leading-relaxed'>{about}</p>}
+        {/* Added: Top Skills chips (outlined pills, wrap to multiple lines), hidden when empty */}
+        {skills?.length > 0 && (
+          <div className='flex flex-wrap gap-2 mt-1'>
+            {skills.map((skill, i) => (
+              <span key={i} className='badge badge-primary badge-outline'>
+                {skill}
+              </span>
+            ))}
+          </div>
+        )}
+        {/* Added: clickable portfolio link that opens in a new tab, hidden when empty */}
+        {portfolioHref && (
+          <a
+            href={portfolioHref}
+            target='_blank'
+            rel='noopener noreferrer'
+            className='link link-primary text-sm inline-flex items-center gap-1 mt-1'>
+            <LinkIcon className='w-4 h-4' />
+            Portfolio
+          </a>
+        )}
         {_id && (
           // UI: Ignore = outlined/red, Interested = primary; disabled + spinner while sending
           <div className='card-actions justify-center gap-4 mt-4'>

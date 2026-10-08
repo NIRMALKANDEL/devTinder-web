@@ -14,21 +14,49 @@ const EditProfile = ({ user }) => {
   const [age, setAge] = useState(user?.age || 18);
   const [gender, setGender] = useState(user?.gender || "");
   const [photoURL, setPhotoURL] = useState(user?.photoURL || "");
+  // Added: Top 5 Skills + Portfolio Website state (optional fields)
+  const [skills, setSkills] = useState(user?.skills || []);
+  const [skillInput, setSkillInput] = useState("");
+  const [portfolioUrl, setPortfolioUrl] = useState(user?.portfolioUrl || "");
   const [showToast, setShowToast] = useState(false);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
 
   const dispatch = useDispatch();
 
+  // Added: add a skill (trimmed, no duplicates, max 5)
+  const addSkill = () => {
+    const skill = skillInput.trim();
+    if (!skill || skills.length >= 5 || skills.includes(skill)) return;
+    setSkills([...skills, skill]);
+    setSkillInput("");
+  };
+
+  // Added: remove a skill chip
+  const removeSkill = (skillToRemove) => {
+    setSkills(skills.filter((s) => s !== skillToRemove));
+  };
+
   const saveProfile = async () => {
     setError("");
+    // Added: validate the optional portfolio URL before saving
+    if (portfolioUrl.trim()) {
+      try {
+        new URL(/^https?:\/\//i.test(portfolioUrl) ? portfolioUrl : `https://${portfolioUrl}`);
+      } catch {
+        setError("Please enter a valid portfolio URL");
+        return;
+      }
+    }
     setSaving(true);
     try {
-      const res = await axios.patch(
-        BASE_URL + "/profile/edit",
-        { firstName, lastName, about, photoURL, age, gender },
-        { withCredentials: true }
-      );
+      // Added: send skills + portfolioUrl along with the existing fields
+      const payload = { firstName, lastName, about, photoURL, age, skills, portfolioUrl };
+      // Fixed: only send gender when one is selected (empty "" fails the enum validation)
+      if (gender) payload.gender = gender;
+      const res = await axios.patch(BASE_URL + "/profile/edit", payload, {
+        withCredentials: true,
+      });
 
       dispatch(addUser(res?.data?.data));
       setShowToast(true);
@@ -91,6 +119,52 @@ const EditProfile = ({ user }) => {
                 />
               </label>
 
+              {/* Added: Top 5 Skills field (optional, max 5) */}
+              <label className={fieldClass}>
+                <span className={labelClass}>Top 5 Skills</span>
+                <div className='flex gap-2'>
+                  <input
+                    type='text'
+                    className='input input-bordered w-full'
+                    placeholder={skills.length >= 5 ? "Maximum 5 skills added" : "e.g. React"}
+                    value={skillInput}
+                    disabled={skills.length >= 5}
+                    onChange={(e) => setSkillInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        addSkill();
+                      }
+                    }}
+                  />
+                  <button
+                    type='button'
+                    className='btn btn-outline btn-primary'
+                    disabled={skills.length >= 5 || !skillInput.trim()}
+                    onClick={addSkill}>
+                    Add
+                  </button>
+                </div>
+                {skills.length > 0 && (
+                  <div className='flex flex-wrap gap-2 mt-2'>
+                    {skills.map((skill, i) => (
+                      <span
+                        key={i}
+                        className='badge badge-primary badge-outline gap-1'>
+                        {skill}
+                        <button
+                          type='button'
+                          className='text-xs'
+                          aria-label={`Remove ${skill}`}
+                          onClick={() => removeSkill(skill)}>
+                          ✕
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </label>
+
               <div className='grid grid-cols-1 sm:grid-cols-2 gap-x-4'>
                 <label className={fieldClass}>
                   <span className={labelClass}>Age</span>
@@ -128,6 +202,18 @@ const EditProfile = ({ user }) => {
                 />
               </label>
 
+              {/* Added: Portfolio Website field (optional) */}
+              <label className={fieldClass}>
+                <span className={labelClass}>Portfolio Website</span>
+                <input
+                  type='url'
+                  className='input input-bordered w-full'
+                  placeholder='https://your-portfolio.com'
+                  value={portfolioUrl}
+                  onChange={(e) => setPortfolioUrl(e.target.value)}
+                />
+              </label>
+
               {error && (
                 <div role='alert' className='alert alert-error alert-soft text-sm mt-2'>
                   <span>{error}</span>
@@ -152,7 +238,8 @@ const EditProfile = ({ user }) => {
               Live preview
             </p>
             <UserCard
-              user={{ firstName, lastName, about, photoURL, age, gender }}
+              // Added: include skills + portfolioUrl so the live preview shows them
+              user={{ firstName, lastName, about, photoURL, age, gender, skills, portfolioUrl }}
             />
           </div>
         </div>
