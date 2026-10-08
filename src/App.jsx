@@ -7,6 +7,7 @@ import appStore from "./utils/appStore";
 import Feed from "./Components/Feed";
 import Connections from "./Components/Connections";
 import Requests from "./Components/Requests";
+import ResetPassword from "./Components/ResetPassword";
 function App() {
   return (
     <>
@@ -19,6 +20,7 @@ function App() {
               <Route path='/profile' element={<Profile />} />
               <Route path='/connections' element={<Connections />} />
               <Route path='/requests' element={<Requests />} />
+              <Route path='/reset-password/:token' element={<ResetPassword />} />
             </Route>
           </Routes>
         </BrowserRouter>

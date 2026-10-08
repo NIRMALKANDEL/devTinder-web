@@ -7,6 +7,10 @@ Backend repo: [NIRMALKANDEL/devTinder](https://github.com/NIRMALKANDEL/devTinder
 ## Features
 
 - **Sign up / Login / Logout** with cookie-based auth
+- **Retype password** field on sign up (must match)
+- **Email verification** — after sign up, users get a welcome email and must click the verify link before they can log in (`/login?verified=true` shows a confirmation)
+- **Forgot password** — link on the Login card emails a reset link; the **Reset Password** page (`/reset-password/:token`) sets a new password
+- Emails are sent by the backend through AWS SES — see the [backend README](https://github.com/NIRMALKANDEL/devTinder#email-setup--how-the-pieces-fit-together) for the SES, IAM, Cloudflare and GoDaddy DNS setup
 - **Feed** — browse developer profiles one card at a time and mark them *Ignore* or *Interested*
 - **Requests** — accept or reject incoming connection requests
 - **Connections** — see everyone you've connected with
@@ -40,7 +44,8 @@ src/
 │   ├── Body.jsx         # Layout shell (navbar, page outlet, footer)
 │   ├── NavBar.jsx
 │   ├── Footer.jsx
-│   ├── Login.jsx        # Login + Sign up
+│   ├── Login.jsx        # Login + Sign up + Forgot password
+│   ├── ResetPassword.jsx # Reset password page (link from email)
 │   ├── Feed.jsx
 │   ├── UserCard.jsx     # Profile card (feed + edit-profile preview)
 │   ├── Requests.jsx
@@ -96,6 +101,8 @@ npm run dev
 
 Open http://localhost:5173.
 
+> Links inside emails (verify / reset) use the backend's `FRONTEND_URL` — keep it `http://localhost:5173` locally.
+
 ### Scripts
 
 | Command           | Description                    |
@@ -105,7 +112,9 @@ Open http://localhost:5173.
 | `npm run preview` | Preview the production build   |
 | `npm run lint`    | Run ESLint                     |
 
-## Deployment (AWS EC2 + nginx)
+## Deployment (AWS EC2 + nginx, behind Cloudflare)
+
+`www.projectdev.in` (domain registered at GoDaddy, DNS + proxy on Cloudflare) points to the EC2 instance.
 
 The frontend is served as static files by nginx, which also proxies `/api/` to the backend (run with pm2).
 
@@ -127,15 +136,24 @@ server {
 
 ### Deploying an update
 
+Deploy the [backend](https://github.com/NIRMALKANDEL/devTinder#deploying-an-update--step-by-step) first, then:
+
 ```bash
+# 1. Connect to the server
 ssh -i <your-key>.pem ubuntu@<your-ec2-host>
 
+# 2. Get the latest code
 cd ~/devTinder-web
 git pull origin main
+
+# 3. Install dependencies and build
 npm install
 npm run build
+
+# 4. Publish the build and reload nginx
 sudo cp -r dist/* /var/www/html/
-sudo systemctl reload nginx
+sudo nginx -t && sudo systemctl reload nginx
 ```
 
-Hard-refresh the browser (`Ctrl+Shift+R`) to load the new build.
+5. Hard-refresh the browser (`Ctrl+Shift+R`). If the old version still shows, purge the cache in Cloudflare → *Caching* → *Purge Everything*.
+6. Check: the Sign Up card shows **Retype Password**, the Login card shows **Forgot password?**, and `https://www.projectdev.in/reset-password/test` opens the Reset Password page (nginx's `try_files ... /index.html` serves this route).

@@ -1,32 +1,76 @@
 import axios from "axios";
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { BASE_URL } from "../utils/constants";
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect } from "react";
-import { addFeed } from "../utils/feedSlice";
+// Added: appendFeed to add paginated users without replacing existing ones
+import { addFeed, appendFeed } from "../utils/feedSlice";
 import UserCard from "./UserCard";
 import EmptyState from "./EmptyState";
 import { FlameIcon } from "./Icons";
 
+// Added: number of users fetched per API page
+const PAGE_SIZE = 10;
+
 const Feed = () => {
   const feed = useSelector((store) => store.feed);
   const dispatch = useDispatch();
+  // Added: pagination state (last loaded page, whether more remain, in-flight guard)
+  const pageRef = useRef(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
 
+  // Added: fetch a single page of feed users from the API
+  const fetchPage = async (page) => {
+    const res = await axios.get(
+      BASE_URL + "/feed?page=" + page + "&limit=" + PAGE_SIZE,
+      { withCredentials: true }
+    );
+    return res?.data?.data || [];
+  };
+
+  // Initial load: fetch page 1 only if the feed hasn't been loaded yet
   const getFeed = async () => {
     if (feed) return;
     try {
-      const res = await axios.get(BASE_URL + "/feed", {
-        withCredentials: true,
-      });
-      dispatch(addFeed(res?.data?.data));
+      const users = await fetchPage(1);
+      pageRef.current = 1;
+      dispatch(addFeed(users));
+      // Added: if the first page is already short, there are no more users
+      setHasMore(users.length === PAGE_SIZE);
     } catch (err) {
       console.error("Error fetching feed:", err);
+    }
+  };
+
+  // Added: load the next page and append it when nearing the end of the loaded users
+  const loadMore = async () => {
+    if (loadingMore || !hasMore) return;
+    setLoadingMore(true);
+    try {
+      const nextPage = pageRef.current + 1;
+      const users = await fetchPage(nextPage);
+      pageRef.current = nextPage;
+      if (users.length > 0) dispatch(appendFeed(users));
+      // Added: fewer than a full page means the API is exhausted, so stop requesting
+      if (users.length < PAGE_SIZE) setHasMore(false);
+    } catch (err) {
+      console.error("Error loading more feed:", err);
+    } finally {
+      setLoadingMore(false);
     }
   };
 
   useEffect(() => {
     getFeed();
   }, []);
+
+  // Added: when the user reaches the second-last card, request the next 10 users
+  useEffect(() => {
+    if (feed && hasMore && !loadingMore && feed.length <= 2) {
+      loadMore();
+    }
+  }, [feed?.length, hasMore, loadingMore]);
+
   // UI: skeleton card while the feed is loading (was: render nothing)
   if (!feed)
     return (
@@ -46,18 +90,27 @@ const Feed = () => {
       </div>
     );
 
-  if (feed.length <= 0)
+  if (feed.length <= 0) {
+    // Added: still fetching the next page, so show a spinner instead of the empty state
+    if (loadingMore || hasMore)
+      return (
+        <div className='flex justify-center my-20'>
+          <span className='loading loading-spinner loading-lg text-primary'></span>
+        </div>
+      );
+    // Added: API confirmed there are no more users
     return (
       <div className='my-10'>
         <EmptyState
           icon={<FlameIcon className='w-7 h-7' />}
-          title='No new users found!'
+          title='No more users available'
           message="You've seen everyone for now. Check back later for new developers."
           actionText='View connections'
           actionTo='/connections'
         />
       </div>
     );
+  }
 
   return (
     feed && (
@@ -75,9 +128,13 @@ const Feed = () => {
             <UserCard user={feed[0]} />
           </div>
         </div>
-        <p className='text-xs opacity-60 mt-8'>
-          {feed.length} {feed.length === 1 ? "profile" : "profiles"} left
-        </p>
+        {/* Changed: show a loading hint while the next page is fetched (was the misleading "X left" count) */}
+        {loadingMore && (
+          <p className='text-xs opacity-60 mt-8 flex items-center gap-2'>
+            <span className='loading loading-spinner loading-xs'></span>
+            Loading more developers...
+          </p>
+        )}
       </div>
     )
   );

@@ -28,7 +28,11 @@ const Body = () => {
       }
     } catch (err) {
       // ✅ FIX: correct axios error handling
-      if (err?.response?.status === 401) {
+      // Changed: logged-out users opening a reset-password link stay on that page
+      if (
+        err?.response?.status === 401 &&
+        !location.pathname.startsWith("/reset-password")
+      ) {
         navigate("/login");
       }
       console.error("Profile fetch failed:", err);
