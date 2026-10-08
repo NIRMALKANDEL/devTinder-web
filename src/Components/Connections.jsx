@@ -83,15 +83,15 @@ const Connections = () => {
           <div
             key={connection._id}
             style={{ animationDelay: `${Math.min(i, 8) * 50}ms` }}
-            className='card bg-base-300 shadow-xl animate-card-in transition-transform duration-200 hover:-translate-y-1'>
-            <div className='card-body items-center text-center'>
+            className='card bg-base-300 shadow-xl min-w-0 animate-card-in transition-transform duration-200 hover:-translate-y-1'>
+            <div className='card-body items-center text-center min-w-0'>
               <Avatar
                 src={connection.photoURL}
                 firstName={connection.firstName}
                 lastName={connection.lastName}
                 className='w-24 h-24 ring-2 ring-primary ring-offset-2 ring-offset-base-300'
               />
-              <h2 className='card-title mt-2'>
+              <h2 className='card-title mt-2 justify-center [overflow-wrap:anywhere]'>
                 {connection.firstName} {connection.lastName}
               </h2>
               {(connection.age || connection.gender) && (
@@ -100,15 +100,15 @@ const Connections = () => {
                 </p>
               )}
               {connection.about && (
-                <p className='text-sm opacity-80 line-clamp-3'>
+                <p className='text-sm opacity-80 line-clamp-3 w-full [overflow-wrap:anywhere]'>
                   {connection.about}
                 </p>
               )}
 
               {connection.skills?.length > 0 && (
-                <div className='flex flex-wrap justify-center gap-2 mt-2'>
+                <div className='flex flex-wrap justify-center gap-2 mt-2 w-full'>
                   {connection.skills.map((skill, i) => (
-                    <span key={i} className='badge badge-primary badge-outline'>
+                    <span key={i} className='badge badge-primary badge-outline h-auto max-w-full whitespace-normal break-words'>
                       {skill}
                     </span>
                   ))}

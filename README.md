@@ -8,7 +8,7 @@ Backend repo: [NIRMALKANDEL/devTinder](https://github.com/NIRMALKANDEL/devTinder
 
 - **Sign up / Login / Logout** with cookie-based auth
 - **Retype password** field on sign up (must match)
-- **Email verification** — after sign up, users get a welcome email and must click the verify link before they can log in (`/login?verified=true` shows a confirmation)
+- **Email verification** — after sign up, users get a welcome email and must click the verify link before they can log in; the link logs them in and opens their profile
 - **Forgot password** — link on the Login card emails a reset link; the **Reset Password** page (`/reset-password/:token`) sets a new password
 - Emails are sent by the backend through AWS SES — see the [backend README](https://github.com/NIRMALKANDEL/devTinder#email-setup--how-the-pieces-fit-together) for the SES, IAM, Cloudflare and GoDaddy DNS setup
 - **Feed** — browse developer profiles one card at a time and mark them *Ignore* or *Interested*
