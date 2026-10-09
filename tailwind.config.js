@@ -1,4 +1,6 @@
 /** @type {import('tailwindcss').Config} */
+import daisyui from "daisyui";
+
 export default {
   content: [
     "./index.html",
@@ -6,6 +8,18 @@ export default {
   ],
   theme: {
     extend: {
+      // UI: Geist for a sharper, more intentional type voice (loaded in index.html)
+      fontFamily: {
+        sans: [
+          "Geist",
+          "ui-sans-serif",
+          "system-ui",
+          "-apple-system",
+          "Segoe UI",
+          "sans-serif",
+        ],
+        mono: ["Geist Mono", "ui-monospace", "SFMono-Regular", "monospace"],
+      },
       // UI: lightweight entry animations used for page / card transitions
       keyframes: {
         "fade-in-up": {
@@ -25,5 +39,6 @@ export default {
       },
     },
   },
-  plugins: [require("daisyui")],
+  // Changed: ESM import instead of require() (fixes the eslint no-undef error)
+  plugins: [daisyui],
 };

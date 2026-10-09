@@ -1,175 +1,88 @@
-import axios from "axios";
 import React, { useState } from "react";
-import { BASE_URL } from "../utils/constants";
+import { CloseIcon, HeartIcon } from "./Icons";
+import ProfileLinks from "./ProfileLinks";
+import SkillChips from "./SkillChips";
 
-import { useDispatch } from "react-redux";
-import { removeUserFromFeed } from "../utils/feedSlice";
-import { CloseIcon, HeartIcon, LinkIcon } from "./Icons";
-
-const UserCard = ({ user }) => {
-  // Added: pull skills + portfolioUrl so the card can show chips and a portfolio link
-  const { _id, firstName, lastName, photoURL, age, gender, about, skills, portfolioUrl } =
+// Changed: sending the request moved up to Feed (so the card can animate out and be
+// restored if the request fails). The card calls onAction("ignored" | "interested").
+// Without onAction (e.g. the Edit Profile live preview) no buttons are shown.
+const UserCard = ({ user, onAction, disabled = false }) => {
+  // Added: pull skills + portfolioUrl + githubUrl so the card can show chips and links
+  const { _id, firstName, lastName, photoURL, age, gender, about, skills, portfolioUrl, githubUrl } =
     user;
-  const dispatch = useDispatch();
-  const [sending, setSending] = useState(null); // status being sent, or null
-
-  // Added: make the portfolio link openable even if the user typed it without a protocol
-  const portfolioHref = portfolioUrl
-    ? /^https?:\/\//i.test(portfolioUrl)
-      ? portfolioUrl
-      : `https://${portfolioUrl}`
-    : "";
-
-  const handleSendRequest = async (status, userId) => {
-    setSending(status);
-    try {
-      await axios.post(
-        BASE_URL + "/request/send/" + status + "/" + userId,
-        {},
-        { withCredentials: true }
-      );
-      dispatch(removeUserFromFeed(userId));
-    } catch (err) {
-      console.error("Error sending request:", err);
-    } finally {
-      setSending(null);
-    }
-  };
+  // UI: remember a photo URL that failed to load and show initials instead
+  const [brokenSrc, setBrokenSrc] = useState(null);
+  const showPhoto = photoURL && brokenSrc !== photoURL;
 
   // UI: initials shown when there is no photo (e.g. live preview in Edit Profile)
   const initials =
     `${firstName?.[0] || ""}${lastName?.[0] || ""}`.toUpperCase() || "?";
+  const fullName = `${firstName || ""} ${lastName || ""}`.trim();
+  const meta = [age, gender].filter(Boolean).join(" · ");
 
   return (
-    <div className='card bg-base-300 w-full max-w-sm shadow-xl overflow-hidden'>
-      {/* UI: fixed-height photo so every card is the same size */}
-      <figure className='h-80 bg-base-200'>
-        {photoURL ? (
+    <article className='surface w-full max-w-sm overflow-hidden select-none'>
+      {/* UI: fixed-height photo so every card is the same size; name sits on a soft scrim */}
+      <figure className='relative h-[min(24rem,44dvh)] min-h-56 bg-base-200'>
+        {showPhoto ? (
           <img
-            src={user.photoURL}
-            alt={`${firstName || ""} ${lastName || ""}`.trim() || "photo"}
+            src={photoURL}
+            alt={fullName || "photo"}
+            draggable={false}
+            onError={() => setBrokenSrc(photoURL)}
             className='w-full h-full object-cover'
           />
         ) : (
-          <div className='w-full h-full flex items-center justify-center text-6xl font-bold text-primary opacity-60'>
-            {initials}
+          <div className='w-full h-full flex items-center justify-center tint-primary'>
+            <span className='text-7xl font-bold text-primary opacity-70 tracking-tight'>
+              {initials}
+            </span>
           </div>
         )}
+        <div
+          className='absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/75 via-black/30 to-transparent'
+          aria-hidden='true'></div>
+        <figcaption className='absolute inset-x-0 bottom-0 p-5 text-white text-left'>
+          <h2 className='text-2xl font-bold leading-tight [overflow-wrap:anywhere]'>
+            {fullName || "Your name"}
+          </h2>
+          {meta && <p className='text-sm text-white/80 capitalize mt-0.5 tabular'>{meta}</p>}
+        </figcaption>
       </figure>
-      <div className='card-body'>
-        <h2 className='card-title text-2xl'>
-          {(firstName || "") + " " + (lastName || "")}
-        </h2>
-        {age && gender && (
-          <p className='flex-none text-sm opacity-70 capitalize'>
-            {age + " · " + gender}
-          </p>
+
+      <div className='p-5 flex flex-col gap-3 text-left'>
+        {about && (
+          <p className='opacity-80 text-sm leading-relaxed [overflow-wrap:anywhere]'>{about}</p>
         )}
-        {about && <p className='opacity-80 text-sm leading-relaxed'>{about}</p>}
-        {/* Added: Top Skills chips (outlined pills, wrap to multiple lines), hidden when empty */}
-        {skills?.length > 0 && (
-          <div className='flex flex-wrap gap-2 mt-1'>
-            {skills.map((skill, i) => (
-              <span key={i} className='badge badge-primary badge-outline'>
-                {skill}
-              </span>
-            ))}
-          </div>
-        )}
-        {/* Added: clickable portfolio link that opens in a new tab, hidden when empty */}
-        {portfolioHref && (
-          <a
-            href={portfolioHref}
-            target='_blank'
-            rel='noopener noreferrer'
-            className='link link-primary text-sm inline-flex items-center gap-1 mt-1'>
-            <LinkIcon className='w-4 h-4' />
-            Portfolio
-          </a>
-        )}
-        {_id && (
-          // UI: Ignore = outlined/red, Interested = primary; disabled + spinner while sending
-          <div className='card-actions justify-center gap-4 mt-4'>
+        {/* Added: Top Skills chips (wrap to multiple lines), hidden when empty */}
+        <SkillChips skills={skills} />
+        {/* Added: Portfolio / GitHub links (open in a new tab), hidden when empty */}
+        <ProfileLinks portfolioUrl={portfolioUrl} githubUrl={githubUrl} />
+        {_id && onAction && (
+          // UI: Ignore = outlined/red, Interested = primary
+          <div className='grid grid-cols-2 gap-3 mt-2'>
             <button
-              className='btn btn-outline btn-error rounded-full px-6 gap-2 transition-transform active:scale-95'
-              disabled={!!sending}
-              onClick={() => handleSendRequest("ignored", _id)}>
-              {sending === "ignored" ? (
-                <span className='loading loading-spinner loading-sm'></span>
-              ) : (
-                <CloseIcon />
-              )}
+              type='button'
+              className='btn btn-outline btn-error rounded-full gap-2 transition-transform active:scale-95'
+              disabled={disabled}
+              onPointerDown={(e) => e.stopPropagation()}
+              onClick={() => onAction("ignored")}>
+              <CloseIcon />
               Ignore
             </button>
             <button
-              className='btn btn-primary rounded-full px-6 gap-2 transition-transform active:scale-95'
-              disabled={!!sending}
-              onClick={() => handleSendRequest("interested", _id)}>
-              {sending === "interested" ? (
-                <span className='loading loading-spinner loading-sm'></span>
-              ) : (
-                <HeartIcon />
-              )}
+              type='button'
+              className='btn btn-primary rounded-full gap-2 shadow-lg transition-transform active:scale-95'
+              disabled={disabled}
+              onPointerDown={(e) => e.stopPropagation()}
+              onClick={() => onAction("interested")}>
+              <HeartIcon />
               Interested
             </button>
           </div>
         )}
       </div>
-    </div>
+    </article>
   );
 };
 export default UserCard;
-
-// const UserCard = ({ user }) => {
-//   const { firstName, lastName, about, photoURL, age, gender, _id } = user;
-//   const dispatch = useDispatch();
-
-//   const handleSendRequest = async (status, userId) => {
-//     try {
-//       const res = await axios.post(
-//         BASE_URL + "/request/send/" + status + "/" + userId,
-//         {},
-//         { withCredentials: true }
-//       );
-//       dispatch(removeUserFromFeed(userId));
-//     } catch (err) {
-//       console.log("error while fetching the new users");
-//     }
-//   };
-
-//   return (
-//     <div className='card w-96 bg-gray-100 shadow-lg rounded-xl overflow-hidden'>
-//       <figure className='h-72 overflow-hidden'>
-//         <img
-//           src={photoURL}
-//           alt='photo'
-//           className='w-full h-full object-cover transition-transform duration-300 hover:scale-105'
-//         />
-//       </figure>
-//       <div className='card-body text-center px-6 py-4'>
-//         <h2 className='card-title text-2xl font-semibold text-gray-800'>
-//           {firstName + " " + lastName}
-//         </h2>
-//         {age && gender && (
-//           <p className='text-sm text-gray-600'>{age + ", " + gender}</p>
-//         )}
-//         <p className='text-gray-700 mt-2 text-sm'>{about}</p>
-
-//         <div className='card-actions justify-center mt-4 gap-4'>
-//           <button
-//             className='btn bg-red-100 text-red-600 hover:bg-red-200 px-6 rounded-full shadow-sm'
-//             onClick={() => handleSendRequest("ignored", _id)}>
-//             Ignore
-//           </button>
-//           <button
-//             className='btn bg-green-100 text-green-700 hover:bg-green-200 px-6 rounded-full shadow-sm'
-//             onClick={() => handleSendRequest("interested", _id)}>
-//             Interested
-//           </button>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default UserCard;

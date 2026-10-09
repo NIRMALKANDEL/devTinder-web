@@ -11,19 +11,22 @@ Backend repo: [NIRMALKANDEL/devTinder](https://github.com/NIRMALKANDEL/devTinder
 - **Email verification** — after sign up, users get a welcome email and must click the verify link before they can log in; the link logs them in and opens their profile
 - **Forgot password** — link on the Login card emails a reset link; the **Reset Password** page (`/reset-password/:token`) sets a new password
 - Emails are sent by the backend through AWS SES — see the [backend README](https://github.com/NIRMALKANDEL/devTinder#email-setup--how-the-pieces-fit-together) for the SES, IAM, Cloudflare and GoDaddy DNS setup
-- **Feed** — browse developer profiles one card at a time and mark them *Ignore* or *Interested*
-- **Requests** — accept or reject incoming connection requests
-- **Connections** — see everyone you've connected with
-- **Edit Profile** — update your details with a live card preview
+- **Feed** — browse developer profiles one card at a time: drag the card right (*Interested*) or left (*Ignore*), use the buttons, or the ← / → keys
+- **Requests** — accept or reject incoming connection requests (pending count shown in the navbar)
+- **Connections** — everyone you've connected with, searchable by name or skill; click a card to open that person's **full profile** (`/connections/:userId`)
+- **Edit Profile** — update your details with a live card preview, inline validation and a live **Profile strength** meter
+- **Links** — optional Portfolio and **GitHub** links (GitHub must be a github.com link), shown on cards and profiles
+- **Light / dark mode** switch in the navbar (remembers your choice; follows the system theme until you pick one)
+- **404 page** for unknown URLs; every route works on direct load and refresh
 
 ### UI/UX
 
-- Consistent card-based design across all pages (based on the Login card style)
-- Sticky navbar with active-page highlight and avatar fallback (initials)
-- Page transitions and card entry animations (respects *reduced motion*)
-- Loading skeletons, spinners on action buttons, and friendly empty states
-- Back buttons on inner pages
-- Responsive down to phone width; works with light and dark system themes
+- Spatial UI: layered surfaces with tinted shadows; light mode has a colorful mesh backdrop and gradient accents, dark mode stays clean and flat
+- Liquid-glass navbar, menus, toasts and auth cards; bento-grid layouts on Profile and connection profile pages
+- [Motion](https://motion.dev/) animations: swipe physics, page transitions, list and tile entrances (respects *reduced motion*)
+- Toast messages for success and errors; real error states with *Try again* instead of silent failures
+- Loading skeletons, empty states, back buttons on inner pages
+- Responsive from 360px phones to desktop; keyboard focus rings and a skip-to-content link
 
 ## Tech Stack
 
@@ -31,6 +34,8 @@ Backend repo: [NIRMALKANDEL/devTinder](https://github.com/NIRMALKANDEL/devTinder
 - [Redux Toolkit](https://redux-toolkit.js.org/) for state
 - [React Router 7](https://reactrouter.com/) for routing
 - [Tailwind CSS 3](https://tailwindcss.com/) + [daisyUI 5](https://daisyui.com/) for styling
+- [Motion](https://motion.dev/) for animations and the swipeable card
+- [Geist](https://vercel.com/font) font (Google Fonts)
 - [Axios](https://axios-http.com/) for API calls
 
 ## Project Structure
@@ -41,25 +46,33 @@ src/
 ├── main.jsx             # Entry point
 ├── index.css            # Tailwind + global styles
 ├── Components/
-│   ├── Body.jsx         # Layout shell (navbar, page outlet, footer)
-│   ├── NavBar.jsx
+│   ├── Body.jsx              # Layout shell, login check, page transitions
+│   ├── NavBar.jsx            # Glass navbar, theme switch, user menu
+│   ├── ThemeToggle.jsx       # Light / dark switch
 │   ├── Footer.jsx
-│   ├── Login.jsx        # Login + Sign up + Forgot password
-│   ├── ResetPassword.jsx # Reset password page (link from email)
-│   ├── Feed.jsx
-│   ├── UserCard.jsx     # Profile card (feed + edit-profile preview)
+│   ├── Login.jsx             # Login + Sign up + Forgot password
+│   ├── ResetPassword.jsx     # Reset password page (link from email)
+│   ├── Feed.jsx              # Swipeable card deck
+│   ├── UserCard.jsx          # Profile card (feed + edit-profile preview)
 │   ├── Requests.jsx
-│   ├── Connections.jsx
+│   ├── Connections.jsx       # Searchable connection cards
+│   ├── ConnectionProfile.jsx # One connection's full profile
 │   ├── Profile.jsx
-│   ├── EditProfile.jsx
-│   ├── PageHeader.jsx   # Page title + back button
-│   ├── EmptyState.jsx
+│   ├── EditProfile.jsx       # Bento form + live preview
+│   ├── ProfileStrength.jsx
+│   ├── SkillChips.jsx
+│   ├── ProfileLinks.jsx      # Portfolio + GitHub links
+│   ├── Toast.jsx             # Success / error messages
+│   ├── NotFound.jsx          # 404 page
+│   ├── PageHeader.jsx        # Page title + back button
+│   ├── EmptyState.jsx        # Empty / error state card
 │   ├── Avatar.jsx
-│   └── Icons.jsx        # Inline SVG icons
+│   └── Icons.jsx             # Inline SVG icons
 └── utils/
-    ├── constants.js     # BASE_URL
+    ├── constants.js     # BASE_URL and small shared helpers
+    ├── api.js           # Shared API calls + readable error messages
     ├── appStore.js      # Redux store
-    └── *Slice.js        # user, feed, connections, requests
+    └── *Slice.js        # user, feed, connections, requests, toasts
 ```
 
 ## Getting Started (local)
@@ -156,4 +169,6 @@ sudo nginx -t && sudo systemctl reload nginx
 ```
 
 5. Hard-refresh the browser (`Ctrl+Shift+R`). If the old version still shows, purge the cache in Cloudflare → *Caching* → *Purge Everything*.
-6. Check: the Sign Up card shows **Retype Password**, the Login card shows **Forgot password?**, and `https://www.projectdev.in/reset-password/test` opens the Reset Password page (nginx's `try_files ... /index.html` serves this route).
+6. Check: the navbar has the light/dark switch, a connection card opens `/connections/<id>`, refreshing any page (e.g. `/requests`, `/reset-password/test`) still loads it (nginx's `try_files ... /index.html`), and an unknown URL shows the 404 page.
+
+> `npm install` is required on every deploy that changes `package.json` (for example, the `motion` package).
