@@ -1,22 +1,39 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import NavBar from "./NavBar";
-import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useNavigationType, useOutlet } from "react-router-dom";
+import { AnimatePresence, motion } from "motion/react";
 import Footer from "./Footer";
+import Toast from "./Toast";
+import EmptyState from "./EmptyState";
+import { AlertIcon } from "./Icons";
 import axios from "axios";
 import { BASE_URL } from "../utils/constants";
 import { useDispatch, useSelector } from "react-redux";
 import { addUser } from "../utils/userSlice";
 
+// Added: pages that need a logged-in user (login, reset-password and 404 stay public)
+const PROTECTED_PATHS = ["/", "/profile", "/connections", "/requests"];
+
 const Body = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const userData = useSelector((store) => store.user);
-  // UI: used only to re-trigger the page entry animation on route change
   const location = useLocation();
+  const navigationType = useNavigationType();
+  // UI: keeps the previous page mounted while it animates out
+  const outlet = useOutlet();
 
-  const fetchUser = async () => {
-    if (userData) return;
+  const pathname = location.pathname.replace(/\/+$/, "") || "/";
+  const isProtected =
+    PROTECTED_PATHS.includes(pathname) || pathname.startsWith("/connections/");
 
+  // Added: "checking" | "ready" | "guest" | "error" — protected pages wait for this
+  // instead of firing their own API calls before we know who is logged in
+  const [authState, setAuthState] = useState(userData ? "ready" : "checking");
+  const requested = useRef(false);
+
+  const fetchUser = useCallback(async () => {
+    setAuthState("checking");
     try {
       const res = await axios.get(BASE_URL + "/profile/view", {
         withCredentials: true,
@@ -25,34 +42,82 @@ const Body = () => {
       // ✅ FIX: store only payload
       if (res?.data?.payload) {
         dispatch(addUser(res.data.payload));
+        setAuthState("ready");
+      } else {
+        setAuthState("guest");
       }
     } catch (err) {
-      // ✅ FIX: correct axios error handling
-      // Changed: logged-out users opening a reset-password link stay on that page
-      if (
-        err?.response?.status === 401 &&
-        !location.pathname.startsWith("/reset-password")
-      ) {
-        navigate("/login");
-      }
-      console.error("Profile fetch failed:", err);
+      // Fixed: the auth middleware answers 400 (not only 401) for an expired or invalid token,
+      // which used to leave the page loading forever. Anything else is a server/network problem.
+      const status = err?.response?.status;
+      setAuthState(status === 401 || status === 400 ? "guest" : "error");
     }
-  };
+  }, [dispatch]);
 
   useEffect(() => {
+    if (userData || requested.current) return;
+    requested.current = true;
     fetchUser();
-  }, []);
+  }, [userData, fetchUser]);
+
+  // Changed: redirects use replace so Back never returns to a page that bounces again
+  useEffect(() => {
+    // ("ready" with no user = just logged out; Back to a protected page must return to login)
+    if (!userData && isProtected && (authState === "guest" || authState === "ready")) {
+      navigate("/login", { replace: true });
+    } else if (userData && pathname === "/login") {
+      navigate("/", { replace: true });
+    }
+  }, [userData, isProtected, authState, pathname, navigate]);
+
+  // Added: new pages start at the top; Back/Forward (POP) keeps the browser's position
+  useEffect(() => {
+    if (navigationType !== "POP") window.scrollTo({ top: 0, behavior: "instant" });
+  }, [pathname, navigationType]);
+
+  let content = outlet;
+  if (isProtected && !userData) {
+    content =
+      authState === "error" ? (
+        <div className='py-16'>
+          <EmptyState
+            icon={<AlertIcon className='w-7 h-7' />}
+            title="We couldn't reach the server"
+            message='Check your connection, then try again.'
+            actionText='Try again'
+            onAction={fetchUser}
+          />
+        </div>
+      ) : (
+        <div className='flex justify-center py-24' aria-label='Loading'>
+          <span className='loading loading-spinner loading-lg text-primary'></span>
+        </div>
+      );
+  }
 
   return (
     // UI: full-height column so the footer sits at the bottom without covering content
-    <div className='min-h-screen flex flex-col bg-base-100'>
+    <div className='min-h-[100dvh] flex flex-col overflow-x-clip'>
+      <div className='app-backdrop' aria-hidden='true'></div>
+      <a href='#main' className='skip-link'>
+        Skip to content
+      </a>
       <NavBar />
-      <main
-        key={location.pathname}
-        className='flex-1 w-full max-w-6xl mx-auto px-4 animate-page-in'>
-        <Outlet />
-      </main>
+      <AnimatePresence mode='wait' initial={false}>
+        <motion.main
+          key={pathname}
+          id='main'
+          tabIndex={-1}
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
+          transition={{ duration: 0.24, ease: [0.2, 0.8, 0.2, 1] }}
+          className='flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 pt-4 sm:pt-6 pb-16 outline-none'>
+          {content}
+        </motion.main>
+      </AnimatePresence>
       <Footer />
+      <Toast />
     </div>
   );
 };

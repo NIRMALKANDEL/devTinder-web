@@ -2,7 +2,8 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const connectionSlice = createSlice({
   name: "connections",
-  initialState: [],
+  // Changed: null = not loaded yet (lets pages show cached data instead of re-showing a skeleton)
+  initialState: null,
   reducers: {
     addConnections: (state, action) => action.payload,
     removeConnections: () => null,

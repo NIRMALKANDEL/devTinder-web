@@ -2,13 +2,293 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ===========================================================
+   UI: design tokens on top of the daisyUI theme colors.
+   daisyUI 5 exposes colors as CSS variables (--color-*), so the
+   surfaces below mix those variables and follow light/dark themes.
+   =========================================================== */
+:root {
+  /* Changed: light mode is more vibrant — colored mesh backdrop, violet-tinted shadows */
+  --shadow-tint: oklch(42% 0.17 292);
+  --hairline: color-mix(in oklab, var(--color-base-content) 8%, transparent);
+  --glass-fill: color-mix(in oklab, var(--color-base-100) 66%, transparent);
+  --glass-edge: color-mix(in oklab, white 70%, transparent);
+  --grain-opacity: 0.03;
+  --page-tint: oklch(97.4% 0.014 292);
+  --mesh-1: color-mix(in oklab, var(--color-primary) 42%, transparent);
+  --mesh-2: oklch(72% 0.2 350 / 0.46);
+  --mesh-3: oklch(78% 0.14 220 / 0.52);
+  --mesh-4: oklch(86% 0.16 80 / 0.48);
+  /* Accent hues used next to the brand indigo (gradients, chips) */
+  --accent-2: oklch(62% 0.23 350);
+  --accent-3: oklch(64% 0.16 232);
+  --chip-l: 46%;
+  --chip-a: 0.15;
+  /* Vibrant effects are light-mode only; dark mode switches them off below */
+  --title-grad: linear-gradient(100deg, var(--color-primary) 10%, var(--accent-2) 60%, var(--accent-3));
+  --title-color: transparent;
+  --btn-grad: linear-gradient(120deg, var(--color-primary), color-mix(in oklab, var(--color-primary) 55%, var(--accent-2)));
+  --btn-glow: 0 8px 22px -10px color-mix(in oklab, var(--accent-2) 70%, transparent);
+  --btn-hover-filter: brightness(1.07) saturate(1.05);
+  --btn-border: transparent;
+  --bar-grad: linear-gradient(90deg, var(--color-primary), var(--accent-2), var(--accent-3));
+  --glow-image: linear-gradient(135deg, var(--color-primary), var(--accent-2) 55%, var(--accent-3));
+  --glow-opacity: 0.28;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --shadow-tint: oklch(8% 0.03 277);
+    --glass-fill: color-mix(in oklab, var(--color-base-100) 62%, transparent);
+    --glass-edge: color-mix(in oklab, white 10%, transparent);
+    --grain-opacity: 0.05;
+    --page-tint: var(--color-base-200);
+    --grain-opacity: 0;
+    --mesh-1: transparent;
+    --mesh-2: transparent;
+    --mesh-3: transparent;
+    --mesh-4: transparent;
+    --title-grad: none;
+    --title-color: currentColor;
+    --btn-grad: none;
+    --btn-glow: none;
+    --btn-hover-filter: none;
+    --btn-border: var(--color-primary);
+    --bar-grad: none;
+    --glow-image: none;
+    --glow-opacity: 0.12;
+  }
+  :root:not([data-theme="light"]) .chip {
+    color: var(--color-primary);
+    background-color: color-mix(in oklab, var(--color-primary) 13%, transparent);
+  }
+  :root:not([data-theme="light"]) .glow-deck {
+    display: none;
+  }
+}
+[data-theme="dark"] {
+  --shadow-tint: oklch(8% 0.03 277);
+  --glass-fill: color-mix(in oklab, var(--color-base-100) 62%, transparent);
+  --glass-edge: color-mix(in oklab, white 10%, transparent);
+  --grain-opacity: 0.05;
+  --page-tint: var(--color-base-200);
+  --grain-opacity: 0;
+  --mesh-1: transparent;
+  --mesh-2: transparent;
+  --mesh-3: transparent;
+  --mesh-4: transparent;
+  --title-grad: none;
+  --title-color: currentColor;
+  --btn-grad: none;
+  --btn-glow: none;
+  --btn-hover-filter: none;
+  --btn-border: var(--color-primary);
+  --bar-grad: none;
+  --glow-image: none;
+  --glow-opacity: 0.12;
+}
+[data-theme="dark"] .chip {
+  color: var(--color-primary);
+  background-color: color-mix(in oklab, var(--color-primary) 13%, transparent);
+}
+[data-theme="dark"] .glow-deck {
+  display: none;
+}
+
 /* UI: global polish */
 html {
   scroll-behavior: smooth;
 }
 
+/* Fixed: daisyUI paints the root element, so a body background was drawn on top of the
+   z-index:-1 backdrop and hid it. The tint lives on the root; the body stays transparent. */
+:root:root {
+  background-color: var(--page-tint);
+}
+
 body {
   -webkit-font-smoothing: antialiased;
+  font-feature-settings: "ss01", "cv11";
+  background-color: transparent;
+}
+
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+  letter-spacing: -0.02em;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+/* UI: visible keyboard focus everywhere (mouse clicks stay clean) */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+@layer components {
+  /* Spatial UI: fixed ambient backdrop (soft light pools + film grain) */
+  .app-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(56rem 38rem at 4% -10%, var(--mesh-1), transparent 72%),
+      radial-gradient(48rem 34rem at 100% 0%, var(--mesh-2), transparent 72%),
+      radial-gradient(50rem 36rem at -6% 100%, var(--mesh-3), transparent 72%),
+      radial-gradient(46rem 32rem at 106% 106%, var(--mesh-4), transparent 72%),
+      var(--page-tint);
+  }
+  .app-backdrop::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: var(--grain-opacity);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* Spatial UI: solid elevated surface (cards, tiles) with a tinted, layered shadow */
+  .surface {
+    background-color: var(--color-base-100);
+    border: 1px solid var(--hairline);
+    border-radius: 1.5rem;
+    box-shadow:
+      0 1px 2px color-mix(in oklab, var(--shadow-tint) 10%, transparent),
+      0 12px 32px -14px color-mix(in oklab, var(--shadow-tint) 28%, transparent);
+  }
+
+  /* Hover lift for interactive surfaces (transform + shadow only) */
+  .surface-hover {
+    transition:
+      transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      box-shadow 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .surface-hover:hover {
+    transform: translateY(-3px);
+    box-shadow:
+      0 2px 4px color-mix(in oklab, var(--shadow-tint) 10%, transparent),
+      0 24px 48px -18px color-mix(in oklab, var(--shadow-tint) 38%, transparent);
+  }
+
+  /* Liquid Glass: translucent layer with blur, a 1px refractive top edge and soft depth */
+  .liquid-glass {
+    background-color: var(--glass-fill);
+    -webkit-backdrop-filter: blur(20px) saturate(170%);
+    backdrop-filter: blur(20px) saturate(170%);
+    border: 1px solid var(--hairline);
+    box-shadow:
+      inset 0 1px 0 var(--glass-edge),
+      0 10px 30px -12px color-mix(in oklab, var(--shadow-tint) 30%, transparent);
+  }
+
+  /* Bento tile: a surface with consistent inner padding */
+  .bento-tile {
+    @apply surface p-5 sm:p-6 flex flex-col gap-3 min-w-0;
+  }
+
+  /* Small sentence-case label used above tile content */
+  .tile-label {
+    @apply text-xs font-medium tracking-wide opacity-60;
+  }
+
+  /* Gradient headline text (brand indigo -> pink -> sky) */
+  .text-gradient {
+    background-image: var(--title-grad);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: var(--title-color);
+  }
+
+  /* Profile strength bar: gradient in light mode, solid brand color in dark */
+  .strength-fill {
+    background-color: var(--color-primary);
+    background-image: var(--bar-grad);
+  }
+
+  /* Soft multi-color glow placed behind a hero element */
+  .glow-backdrop {
+    position: absolute;
+    border-radius: 3rem;
+    background-color: var(--color-primary);
+    background-image: var(--glow-image);
+    filter: blur(48px);
+    opacity: var(--glow-opacity);
+    pointer-events: none;
+  }
+
+  /* Skill chips: five hues that cycle so lists look colorful but stay readable */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    border-radius: 0.5rem;
+    padding: 0.25rem 0.625rem;
+    font-size: 0.75rem;
+    line-height: 1rem;
+    font-weight: 600;
+    color: oklch(var(--chip-l) 0.17 var(--chip-h));
+    background-color: oklch(66% 0.17 var(--chip-h) / var(--chip-a));
+  }
+
+  /* Skip link: hidden until focused with the keyboard */
+  .skip-link {
+    position: fixed;
+    left: 1rem;
+    top: -4rem;
+    z-index: 60;
+    padding: 0.6rem 1rem;
+    border-radius: 0.75rem;
+    background: var(--color-primary);
+    color: var(--color-primary-content);
+    font-weight: 600;
+    transition: top 150ms ease;
+  }
+  .skip-link:focus {
+    top: 1rem;
+  }
+}
+
+@layer utilities {
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+  /* Theme-aware 1px divider color (Tailwind 3 can't apply /opacity to daisyUI 5 colors) */
+  .border-hairline {
+    border-color: var(--hairline);
+  }
+  /* Soft primary wash for active pills and chips */
+  .tint-primary {
+    background-color: color-mix(in oklab, var(--color-primary) 13%, transparent);
+  }
+}
+
+/* Chip hues live outside @layer: the class names are built at runtime (chip-${i % 5}),
+   so Tailwind can't see them and would purge them from a layer */
+.chip-0 { --chip-h: 277; }
+.chip-1 { --chip-h: 345; }
+.chip-2 { --chip-h: 228; }
+.chip-3 { --chip-h: 160; }
+.chip-4 { --chip-h: 60; }
+
+/* Vibrant primary buttons: indigo -> pink gradient with a soft colored glow */
+.btn-primary:not(.btn-outline):not(.btn-soft):not(.btn-ghost):not(:disabled) {
+  background-image: var(--btn-grad);
+  border-color: var(--btn-border);
+  box-shadow: var(--btn-glow);
+}
+.btn-primary:not(.btn-outline):not(.btn-soft):not(.btn-ghost):not(:disabled):hover {
+  filter: var(--btn-hover-filter);
+}
+
+/* No blur support: fall back to a near-solid surface so text stays readable */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .liquid-glass {
+    background-color: color-mix(in oklab, var(--color-base-100) 96%, transparent);
+  }
 }
 
 /* UI: respect users who prefer reduced motion */
@@ -21,5 +301,8 @@ body {
   *::after {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
+  }
+  .surface-hover:hover {
+    transform: none;
   }
 }
