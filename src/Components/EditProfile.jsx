@@ -31,7 +31,7 @@ const validate = ({ firstName, lastName, age, photoURL, portfolioUrl, githubUrl 
     errors.lastName = "Last name must be at least 2 characters.";
   if (age !== "" && (!Number.isFinite(age) || age < 18))
     errors.age = "You must be at least 18.";
-  if (photoURL.trim() && !/^https?:\/\//i.test(photoURL.trim()))
+  if (photoURL.trim() && !isUploadedPhoto(photoURL) && !/^https?:\/\//i.test(photoURL.trim()))
     errors.photoURL = "Photo URL must start with http:// or https://";
   // Added: validate the optional portfolio URL before saving
   if (portfolioUrl.trim() && !isValidUrl(portfolioUrl.trim()))
@@ -44,6 +44,33 @@ const validate = ({ firstName, lastName, age, photoURL, portfolioUrl, githubUrl 
     errors.githubUrl = "Please enter a github.com link, e.g. github.com/your-name";
   return errors;
 };
+
+// Added: a photo picked from the gallery/device is shrunk to a small JPEG and
+// saved as a data URL (the backend accepts up to ~700 KB)
+const MAX_PHOTO_PX = 512;
+const isUploadedPhoto = (value) => value.startsWith("data:image/");
+const fileToPhotoDataUrl = (file) =>
+  new Promise((resolve, reject) => {
+    const src = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      const scale = Math.min(1, MAX_PHOTO_PX / Math.max(img.width, img.height));
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.round(img.width * scale);
+      canvas.height = Math.round(img.height * scale);
+      const ctx = canvas.getContext("2d");
+      ctx.fillStyle = "#fff"; // transparent PNGs get a white background
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      URL.revokeObjectURL(src);
+      resolve(canvas.toDataURL("image/jpeg", 0.85));
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(src);
+      reject(new Error("Couldn't read that image. Please choose a JPG or PNG."));
+    };
+    img.src = src;
+  });
 
 const tile = {
   hidden: { opacity: 0, y: 14 },
@@ -104,6 +131,23 @@ const EditProfile = ({ user }) => {
   // Added: remove a skill chip
   const removeSkill = (skillToRemove) => {
     setSkills(skills.filter((s) => s !== skillToRemove));
+  };
+
+  // Added: photo chosen from the gallery / device
+  const handlePhotoFile = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = ""; // allow picking the same file again
+    if (!file) return;
+    if (!file.type.startsWith("image/") || file.size > 15 * 1024 * 1024) {
+      setFieldErrors((prev) => ({ ...prev, photoURL: "Please choose an image under 15 MB." }));
+      return;
+    }
+    try {
+      setPhotoURL(await fileToPhotoDataUrl(file));
+      setFieldErrors((prev) => ({ ...prev, photoURL: undefined }));
+    } catch (err) {
+      setFieldErrors((prev) => ({ ...prev, photoURL: err.message }));
+    }
   };
 
   const saveProfile = async (e) => {
@@ -299,13 +343,32 @@ const EditProfile = ({ user }) => {
 
           <motion.div custom={3} variants={tile} initial='hidden' animate='show' className='bento-tile'>
             <p className='tile-label'>Links</p>
+            {/* Added: upload a photo from the gallery/device, or paste an image address */}
+            <div className={fieldClass}>
+              <span className={labelClass}>Profile Photo</span>
+              <div className='flex items-center gap-2'>
+                {isUploadedPhoto(photoURL) && (
+                  <img src={photoURL} alt='' className='w-10 h-10 rounded-xl object-cover' />
+                )}
+                <label className='btn btn-primary btn-soft rounded-xl focus-within:outline-2 focus-within:outline-offset-2'>
+                  {isUploadedPhoto(photoURL) ? "Change photo" : "Upload photo"}
+                  <input type='file' accept='image/*' className='sr-only' onChange={handlePhotoFile} />
+                </label>
+                {isUploadedPhoto(photoURL) && (
+                  <button type='button' className='btn btn-ghost rounded-xl' onClick={() => setPhotoURL("")}>
+                    Remove
+                  </button>
+                )}
+              </div>
+            </div>
+
             <label className={fieldClass}>
-              <span className={labelClass}>Photo URL</span>
+              <span className={labelClass}>Or image address (optional)</span>
               <input
                 type='url'
                 className={inputClass("photoURL")}
-                placeholder='https://...'
-                value={photoURL}
+                placeholder={isUploadedPhoto(photoURL) ? "Using uploaded photo" : "https://..."}
+                value={isUploadedPhoto(photoURL) ? "" : photoURL}
                 onChange={(e) => setPhotoURL(e.target.value)}
                 {...errorProps("photoURL")}
               />
