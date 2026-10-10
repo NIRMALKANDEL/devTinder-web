@@ -125,6 +125,12 @@ Open http://localhost:5173.
 | `npm run preview` | Preview the production build   |
 | `npm run lint`    | Run ESLint                     |
 
+## Themes
+
+Six color skins (Aurora — the default, Ocean, Sunset, Forest, Mono, Classic), each in light and dark, picked from the palette icon in the navbar or in **Settings**. Skins are CSS variables in `src/skins.css`; the list lives in `src/utils/theme.js` (and the pre-render script in `index.html`, which applies the saved choice before the first paint). The login/signup page always uses **Classic**.
+
+The Feed hero has a small **React Three Fiber** scene (`src/Components/three/`). It is lazy-loaded (three.js is never downloaded on the login page), renders a still frame when the OS asks for reduced motion, pauses when scrolled off screen, and falls back to a gradient without WebGL.
+
 ## Deployment (AWS EC2 + nginx, behind Cloudflare)
 
 `www.projectdev.in` (domain registered at GoDaddy, DNS + proxy on Cloudflare) points to the EC2 instance.
@@ -136,6 +142,16 @@ Example nginx config:
 ```nginx
 server {
     root /var/www/html;
+
+    # Chat (Socket.IO) needs the WebSocket upgrade headers
+    location /api/socket.io/ {
+        proxy_pass http://localhost:7777/socket.io/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_read_timeout 3600s;
+    }
 
     location /api/ {
         proxy_pass http://localhost:7777/;
@@ -171,4 +187,6 @@ sudo nginx -t && sudo systemctl reload nginx
 5. Hard-refresh the browser (`Ctrl+Shift+R`). If the old version still shows, purge the cache in Cloudflare → *Caching* → *Purge Everything*.
 6. Check: the navbar has the light/dark switch, a connection card opens `/connections/<id>`, refreshing any page (e.g. `/requests`, `/reset-password/test`) still loads it (nginx's `try_files ... /index.html`), and an unknown URL shows the 404 page.
 
-> `npm install` is required on every deploy that changes `package.json` (for example, the `motion` package).
+> `npm install` is required on every deploy that changes `package.json` (for example, the `motion` package, or three.js / React Three Fiber / socket.io-client in the chat + 3D release).
+>
+> Shortcut: the backend repo has `scripts/deploy-server.sh`, which deploys both repos in one go (with a backup of the old site).
