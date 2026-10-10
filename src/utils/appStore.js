@@ -4,6 +4,7 @@ import feedReducer from "./feedSlice";
 import connectionSlice from "./connectionSlice";
 import requestSlice from "./requestSlice";
 import toastSlice from "./toastSlice";
+import chatReducer from "./chatSlice";
 
 const appStore = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ const appStore = configureStore({
     connections: connectionSlice,
     requests: requestSlice,
     toasts: toastSlice,
+    chat: chatReducer,
   },
 });
 

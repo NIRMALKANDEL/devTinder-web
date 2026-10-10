@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { motion } from "motion/react";
 import { fetchConnections, getErrorMessage } from "../utils/api";
@@ -8,7 +8,9 @@ import PageHeader from "./PageHeader";
 import EmptyState from "./EmptyState";
 import Avatar from "./Avatar";
 import SkillChips from "./SkillChips";
-import { AlertIcon, ArrowRightIcon, CheckIcon, GithubIcon, LinkIcon, UsersIcon } from "./Icons";
+import SafetyMenu from "./SafetyMenu";
+import { addConnections } from "../utils/connectionSlice";
+import { AlertIcon, ArrowRightIcon, ChatIcon, CheckIcon, GithubIcon, LinkIcon, UsersIcon } from "./Icons";
 
 const tile = {
   hidden: { opacity: 0, y: 14 },
@@ -43,6 +45,7 @@ const ConnectionProfile = () => {
   const { userId } = useParams();
   const connections = useSelector((store) => store.connections);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [error, setError] = useState("");
   const requested = useRef(false);
 
@@ -115,7 +118,22 @@ const ConnectionProfile = () => {
 
   return (
     <div className='max-w-5xl mx-auto'>
-      <PageHeader title={fullName} subtitle='Your connection' />
+      <PageHeader title={fullName} subtitle='Your connection'>
+        {/* Added: message, plus block / report */}
+        <div className='flex items-center gap-2 sm:justify-end'>
+          <Link to={`/messages/${person._id}`} className='btn btn-primary rounded-full gap-2 px-5'>
+            <ChatIcon className='w-4 h-4' />
+            Message
+          </Link>
+          <SafetyMenu
+            user={person}
+            onBlocked={() => {
+              dispatch(addConnections(connections.filter((c) => c._id !== person._id)));
+              navigate("/connections", { replace: true });
+            }}
+          />
+        </div>
+      </PageHeader>
 
       {/* UI: bento layout — large photo tile beside about / skills / details / links */}
       <div className='grid gap-5 lg:grid-cols-12 items-start'>

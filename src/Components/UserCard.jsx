@@ -2,11 +2,12 @@ import React, { useState } from "react";
 import { CloseIcon, HeartIcon } from "./Icons";
 import ProfileLinks from "./ProfileLinks";
 import SkillChips from "./SkillChips";
+import SafetyMenu from "./SafetyMenu";
 
 // Changed: sending the request moved up to Feed (so the card can animate out and be
 // restored if the request fails). The card calls onAction("ignored" | "interested").
 // Without onAction (e.g. the Edit Profile live preview) no buttons are shown.
-const UserCard = ({ user, onAction, disabled = false }) => {
+const UserCard = ({ user, onAction, onBlocked, viewerSkills = [], disabled = false }) => {
   // Added: pull skills + portfolioUrl + githubUrl so the card can show chips and links
   const { _id, firstName, lastName, photoURL, age, gender, about, skills, portfolioUrl, githubUrl } =
     user;
@@ -19,6 +20,9 @@ const UserCard = ({ user, onAction, disabled = false }) => {
     `${firstName?.[0] || ""}${lastName?.[0] || ""}`.toUpperCase() || "?";
   const fullName = `${firstName || ""} ${lastName || ""}`.trim();
   const meta = [age, gender].filter(Boolean).join(" · ");
+  // Added: skills the viewer shares with this developer
+  const mine = new Set((viewerSkills || []).map((s) => s.toLowerCase()));
+  const shared = (skills || []).filter((s) => mine.has(s.toLowerCase()));
 
   return (
     <article className='surface w-full max-w-sm overflow-hidden select-none'>
@@ -42,6 +46,13 @@ const UserCard = ({ user, onAction, disabled = false }) => {
         <div
           className='absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/75 via-black/30 to-transparent'
           aria-hidden='true'></div>
+        {/* Added: shared skills badge + block/report menu (feed cards only) */}
+        {_id && onAction && shared.length > 0 && (
+          <span className='absolute top-3 left-3 rounded-full liquid-glass px-2.5 py-1 text-xs font-semibold'>
+            {shared.length} skill{shared.length === 1 ? "" : "s"} in common
+          </span>
+        )}
+        {_id && onAction && <SafetyMenu user={user} onBlocked={onBlocked} className='absolute top-3 right-3' />}
         <figcaption className='absolute inset-x-0 bottom-0 p-5 text-white text-left'>
           <h2 className='text-2xl font-bold leading-tight [overflow-wrap:anywhere]'>
             {fullName || "Your name"}

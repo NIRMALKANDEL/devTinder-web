@@ -10,9 +10,13 @@ import axios from "axios";
 import { BASE_URL } from "../utils/constants";
 import { useDispatch, useSelector } from "react-redux";
 import { addUser } from "../utils/userSlice";
+import { applySkin, isLoginPath } from "../utils/theme";
+import { connectSocket, disconnectSocket } from "../utils/socket";
+import { messageArrived } from "../utils/chatSlice";
+import MobileDock from "./MobileDock";
 
 // Added: pages that need a logged-in user (login, reset-password and 404 stay public)
-const PROTECTED_PATHS = ["/", "/profile", "/connections", "/requests"];
+const PROTECTED_PATHS = ["/", "/profile", "/connections", "/requests", "/messages", "/settings"];
 
 const Body = () => {
   const dispatch = useDispatch();
@@ -25,7 +29,9 @@ const Body = () => {
 
   const pathname = location.pathname.replace(/\/+$/, "") || "/";
   const isProtected =
-    PROTECTED_PATHS.includes(pathname) || pathname.startsWith("/connections/");
+    PROTECTED_PATHS.includes(pathname) ||
+    pathname.startsWith("/connections/") ||
+    pathname.startsWith("/messages/");
 
   // Added: "checking" | "ready" | "guest" | "error" — protected pages wait for this
   // instead of firing their own API calls before we know who is logged in
@@ -70,6 +76,24 @@ const Body = () => {
     }
   }, [userData, isProtected, authState, pathname, navigate]);
 
+  // Added: the color skin follows the route (/login is always Classic)
+  useEffect(() => {
+    applySkin(pathname);
+  }, [pathname]);
+
+  // Added: live chat connection while logged in; new messages go to the chat slice
+  const myId = userData?._id;
+  useEffect(() => {
+    if (!myId) {
+      disconnectSocket();
+      return;
+    }
+    const socket = connectSocket();
+    const onMessage = (message) => dispatch(messageArrived({ message, myId }));
+    socket.on("messageReceived", onMessage);
+    return () => socket.off("messageReceived", onMessage);
+  }, [myId, dispatch]);
+
   // Added: new pages start at the top; Back/Forward (POP) keeps the browser's position
   useEffect(() => {
     if (navigationType !== "POP") window.scrollTo({ top: 0, behavior: "instant" });
@@ -105,18 +129,23 @@ const Body = () => {
       <NavBar />
       <AnimatePresence mode='wait' initial={false}>
         <motion.main
-          key={pathname}
+          // Switching between chats stays on one Messages page (no page transition)
+          key={pathname.startsWith("/messages") ? "/messages" : pathname}
           id='main'
           tabIndex={-1}
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -8 }}
           transition={{ duration: 0.24, ease: [0.2, 0.8, 0.2, 1] }}
-          className='flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 pt-4 sm:pt-6 pb-16 outline-none'>
+          className={`flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 pt-4 sm:pt-6 outline-none ${
+            userData && !isLoginPath(pathname) ? "pb-28 md:pb-16" : "pb-16"
+          }`}>
           {content}
         </motion.main>
       </AnimatePresence>
       <Footer />
+      {/* Added: bottom navigation on phones */}
+      {userData && !isLoginPath(pathname) && <MobileDock />}
       <Toast />
     </div>
   );

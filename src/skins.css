@@ -1,0 +1,339 @@
+/* ===========================================================
+   Added: color skins (see src/utils/theme.js). Everything below applies only when
+   data-skin is not "classic", so the Classic look - which /login always uses - is
+   exactly the rules in index.css. Each skin has light values plus a dark override;
+   dark applies for data-theme="dark", or for the OS setting when no mode was chosen.
+   =========================================================== */
+:root {
+  --font-display: Geist, ui-sans-serif, system-ui, sans-serif;
+}
+h1,
+h2,
+.font-display {
+  font-family: var(--font-display);
+}
+
+/* Shared by every modern skin: vibrant gradients and glows in light AND dark */
+:root[data-skin]:not([data-skin="classic"]) {
+  --font-display: "Space Grotesk", Geist, ui-sans-serif, system-ui, sans-serif;
+  --title-grad: linear-gradient(100deg, var(--color-primary) 5%, var(--accent-2) 55%, var(--accent-3));
+  --title-color: transparent;
+  --btn-grad: linear-gradient(120deg, var(--color-primary), color-mix(in oklab, var(--color-primary) 45%, var(--accent-2)));
+  --btn-glow: 0 10px 28px -12px color-mix(in oklab, var(--color-primary) 85%, transparent);
+  --btn-hover-filter: brightness(1.08) saturate(1.05);
+  --btn-border: transparent;
+  --bar-grad: linear-gradient(90deg, var(--color-primary), var(--accent-2), var(--accent-3));
+  --glow-image: linear-gradient(135deg, var(--color-primary), var(--accent-2) 55%, var(--accent-3));
+  --glow-opacity: 0.3;
+  --mesh-1: color-mix(in oklab, var(--color-primary) 36%, transparent);
+  --mesh-2: color-mix(in oklab, var(--accent-2) 32%, transparent);
+  --mesh-3: color-mix(in oklab, var(--accent-3) 26%, transparent);
+  --mesh-4: color-mix(in oklab, var(--color-secondary) 22%, transparent);
+  --radius-field: 0.75rem;
+  --radius-box: 1rem;
+}
+:root[data-skin]:not([data-skin="classic"]) .glow-deck {
+  display: block;
+}
+:root[data-skin]:not([data-skin="classic"]) .chip {
+  color: oklch(var(--chip-l) 0.17 var(--chip-h));
+  background-color: oklch(66% 0.17 var(--chip-h) / var(--chip-a));
+}
+
+/* ---------- Aurora (default): violet, cyan, lime ---------- */
+:root[data-skin="aurora"] {
+  --color-primary: oklch(52% 0.24 290);
+  --color-primary-content: oklch(98% 0.01 290);
+  --color-secondary: oklch(62% 0.21 330);
+  --color-secondary-content: oklch(98% 0.01 330);
+  --color-accent: oklch(72% 0.14 200);
+  --color-accent-content: oklch(22% 0.05 200);
+  --accent-2: oklch(66% 0.16 210);
+  --accent-3: oklch(76% 0.19 135);
+  --page-tint: oklch(97.6% 0.012 290);
+  --shadow-tint: oklch(40% 0.16 290);
+}
+/* ---------- Ocean: trust blue + orange call-to-action ---------- */
+:root[data-skin="ocean"] {
+  --color-primary: oklch(54.6% 0.215 262.9);
+  --color-primary-content: oklch(99% 0 0);
+  --color-secondary: oklch(62.3% 0.188 259.8);
+  --color-secondary-content: oklch(99% 0 0);
+  --color-accent: oklch(64.6% 0.222 41.1);
+  --color-accent-content: oklch(99% 0 0);
+  --accent-2: oklch(68% 0.15 230);
+  --accent-3: oklch(70% 0.19 47);
+  --page-tint: oklch(97.8% 0.01 250);
+  --shadow-tint: oklch(38% 0.14 260);
+}
+/* ---------- Sunset: coral, orange, gold ---------- */
+:root[data-skin="sunset"] {
+  --color-primary: oklch(56% 0.22 15);
+  --color-primary-content: oklch(99% 0 0);
+  --color-secondary: oklch(64% 0.2 350);
+  --color-secondary-content: oklch(99% 0 0);
+  --color-accent: oklch(78% 0.16 75);
+  --color-accent-content: oklch(28% 0.06 60);
+  --accent-2: oklch(68% 0.19 50);
+  --accent-3: oklch(82% 0.17 88);
+  --page-tint: oklch(97.8% 0.013 40);
+  --shadow-tint: oklch(38% 0.13 20);
+}
+/* ---------- Forest: emerald, teal, lime ---------- */
+:root[data-skin="forest"] {
+  --color-primary: oklch(50% 0.13 162);
+  --color-primary-content: oklch(99% 0 0);
+  --color-secondary: oklch(58% 0.11 190);
+  --color-secondary-content: oklch(99% 0 0);
+  --color-accent: oklch(78% 0.17 130);
+  --color-accent-content: oklch(28% 0.06 130);
+  --accent-2: oklch(66% 0.12 190);
+  --accent-3: oklch(78% 0.18 130);
+  --page-tint: oklch(97.8% 0.012 160);
+  --shadow-tint: oklch(34% 0.09 165);
+}
+/* ---------- Mono: minimal, no gradients ---------- */
+:root[data-skin="mono"] {
+  --color-primary: oklch(21% 0.006 286);
+  --color-primary-content: oklch(99% 0 0);
+  --color-secondary: oklch(45% 0.01 286);
+  --color-secondary-content: oklch(99% 0 0);
+  --color-accent: oklch(55% 0.01 286);
+  --color-accent-content: oklch(99% 0 0);
+  --accent-2: oklch(50% 0.01 286);
+  --accent-3: oklch(72% 0.005 286);
+  --page-tint: oklch(98.2% 0 0);
+  --shadow-tint: oklch(20% 0 0);
+  --title-grad: none;
+  --title-color: currentColor;
+  --btn-grad: none;
+  --btn-glow: 0 8px 22px -12px oklch(0% 0 0 / 0.5);
+  --mesh-1: transparent;
+  --mesh-2: transparent;
+  --mesh-3: transparent;
+  --mesh-4: transparent;
+  --glow-opacity: 0.12;
+}
+
+/* Dark versions. Written twice: explicit dark mode, and OS dark with no saved mode. */
+:root[data-skin]:not([data-skin="classic"])[data-theme="dark"] {
+  --glass-fill: color-mix(in oklab, var(--color-base-100) 58%, transparent);
+  --glass-edge: color-mix(in oklab, white 12%, transparent);
+  --grain-opacity: 0.04;
+  --chip-l: 82%;
+  --chip-a: 0.2;
+  --glow-opacity: 0.34;
+}
+:root[data-skin="aurora"][data-theme="dark"] {
+  --color-base-100: oklch(20% 0.03 282);
+  --color-base-200: oklch(16% 0.028 282);
+  --color-base-300: oklch(26% 0.035 282);
+  --color-base-content: oklch(94% 0.01 282);
+  --color-primary: oklch(72% 0.18 290);
+  --color-primary-content: oklch(18% 0.05 290);
+  --accent-2: oklch(80% 0.13 205);
+  --accent-3: oklch(87% 0.19 135);
+  --page-tint: oklch(13.5% 0.03 282);
+  --shadow-tint: oklch(4% 0.02 282);
+}
+:root[data-skin="ocean"][data-theme="dark"] {
+  --color-base-100: oklch(21% 0.035 255);
+  --color-base-200: oklch(17% 0.03 255);
+  --color-base-300: oklch(27% 0.04 255);
+  --color-base-content: oklch(95% 0.01 255);
+  --color-primary: oklch(70% 0.16 255);
+  --color-primary-content: oklch(18% 0.05 255);
+  --accent-2: oklch(78% 0.12 225);
+  --accent-3: oklch(76% 0.16 50);
+  --page-tint: oklch(14% 0.03 255);
+  --shadow-tint: oklch(4% 0.02 255);
+}
+:root[data-skin="sunset"][data-theme="dark"] {
+  --color-base-100: oklch(21% 0.03 20);
+  --color-base-200: oklch(17% 0.025 20);
+  --color-base-300: oklch(27% 0.035 20);
+  --color-base-content: oklch(95% 0.01 40);
+  --color-primary: oklch(72% 0.17 15);
+  --color-primary-content: oklch(18% 0.05 15);
+  --accent-2: oklch(78% 0.16 55);
+  --accent-3: oklch(88% 0.16 90);
+  --page-tint: oklch(14% 0.025 20);
+  --shadow-tint: oklch(4% 0.02 20);
+}
+:root[data-skin="forest"][data-theme="dark"] {
+  --color-base-100: oklch(20% 0.025 170);
+  --color-base-200: oklch(16% 0.02 170);
+  --color-base-300: oklch(26% 0.03 170);
+  --color-base-content: oklch(95% 0.01 160);
+  --color-primary: oklch(76% 0.15 162);
+  --color-primary-content: oklch(20% 0.05 162);
+  --accent-2: oklch(80% 0.11 190);
+  --accent-3: oklch(88% 0.18 130);
+  --page-tint: oklch(13.5% 0.02 170);
+  --shadow-tint: oklch(4% 0.02 170);
+}
+:root[data-skin="mono"][data-theme="dark"] {
+  --color-base-100: oklch(20% 0 0);
+  --color-base-200: oklch(15% 0 0);
+  --color-base-300: oklch(26% 0 0);
+  --color-base-content: oklch(95% 0 0);
+  --color-primary: oklch(96% 0.003 286);
+  --color-primary-content: oklch(18% 0 0);
+  --page-tint: oklch(12% 0 0);
+  --shadow-tint: oklch(0% 0 0);
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-skin]:not([data-skin="classic"]):not([data-theme="light"]) {
+    --glass-fill: color-mix(in oklab, var(--color-base-100) 58%, transparent);
+    --glass-edge: color-mix(in oklab, white 12%, transparent);
+    --grain-opacity: 0.04;
+    --chip-l: 82%;
+    --chip-a: 0.2;
+    --glow-opacity: 0.34;
+  }
+  :root[data-skin="aurora"]:not([data-theme="light"]) {
+    --color-base-100: oklch(20% 0.03 282);
+    --color-base-200: oklch(16% 0.028 282);
+    --color-base-300: oklch(26% 0.035 282);
+    --color-base-content: oklch(94% 0.01 282);
+    --color-primary: oklch(72% 0.18 290);
+    --color-primary-content: oklch(18% 0.05 290);
+    --accent-2: oklch(80% 0.13 205);
+    --accent-3: oklch(87% 0.19 135);
+    --page-tint: oklch(13.5% 0.03 282);
+    --shadow-tint: oklch(4% 0.02 282);
+  }
+  :root[data-skin="ocean"]:not([data-theme="light"]) {
+    --color-base-100: oklch(21% 0.035 255);
+    --color-base-200: oklch(17% 0.03 255);
+    --color-base-300: oklch(27% 0.04 255);
+    --color-base-content: oklch(95% 0.01 255);
+    --color-primary: oklch(70% 0.16 255);
+    --color-primary-content: oklch(18% 0.05 255);
+    --accent-2: oklch(78% 0.12 225);
+    --accent-3: oklch(76% 0.16 50);
+    --page-tint: oklch(14% 0.03 255);
+    --shadow-tint: oklch(4% 0.02 255);
+  }
+  :root[data-skin="sunset"]:not([data-theme="light"]) {
+    --color-base-100: oklch(21% 0.03 20);
+    --color-base-200: oklch(17% 0.025 20);
+    --color-base-300: oklch(27% 0.035 20);
+    --color-base-content: oklch(95% 0.01 40);
+    --color-primary: oklch(72% 0.17 15);
+    --color-primary-content: oklch(18% 0.05 15);
+    --accent-2: oklch(78% 0.16 55);
+    --accent-3: oklch(88% 0.16 90);
+    --page-tint: oklch(14% 0.025 20);
+    --shadow-tint: oklch(4% 0.02 20);
+  }
+  :root[data-skin="forest"]:not([data-theme="light"]) {
+    --color-base-100: oklch(20% 0.025 170);
+    --color-base-200: oklch(16% 0.02 170);
+    --color-base-300: oklch(26% 0.03 170);
+    --color-base-content: oklch(95% 0.01 160);
+    --color-primary: oklch(76% 0.15 162);
+    --color-primary-content: oklch(20% 0.05 162);
+    --accent-2: oklch(80% 0.11 190);
+    --accent-3: oklch(88% 0.18 130);
+    --page-tint: oklch(13.5% 0.02 170);
+    --shadow-tint: oklch(4% 0.02 170);
+  }
+  :root[data-skin="mono"]:not([data-theme="light"]) {
+    --color-base-100: oklch(20% 0 0);
+    --color-base-200: oklch(15% 0 0);
+    --color-base-300: oklch(26% 0 0);
+    --color-base-content: oklch(95% 0 0);
+    --color-primary: oklch(96% 0.003 286);
+    --color-primary-content: oklch(18% 0 0);
+    --page-tint: oklch(12% 0 0);
+    --shadow-tint: oklch(0% 0 0);
+  }
+}
+
+/* ===========================================================
+   Added: modern UI elements (spotlight cards, gradient ring, marquee, dock)
+   =========================================================== */
+/* Spotlight card: a soft glow follows the pointer (--mx/--my set from JS) */
+.spotlight {
+  position: relative;
+  isolation: isolate;
+}
+.spotlight::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 240ms ease;
+  background: radial-gradient(
+    22rem circle at var(--mx, 50%) var(--my, 50%),
+    color-mix(in oklab, var(--color-primary) 16%, transparent),
+    transparent 70%
+  );
+}
+.spotlight:hover::before {
+  opacity: 1;
+}
+
+/* Animated gradient ring around an element (avatars, highlighted tiles) */
+@property --ring-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+.gradient-ring {
+  position: relative;
+}
+.gradient-ring::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: inherit;
+  padding: 3px;
+  background: conic-gradient(from var(--ring-angle), var(--color-primary), var(--accent-2), var(--accent-3), var(--color-primary));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: ring-spin 6s linear infinite;
+  pointer-events: none;
+}
+@keyframes ring-spin {
+  to {
+    --ring-angle: 360deg;
+  }
+}
+
+/* Endless horizontal marquee (content is rendered twice in JSX) */
+.marquee {
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  gap: 0.5rem;
+  animation: marquee 40s linear infinite;
+}
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Mobile bottom dock: clear of the iPhone home indicator */
+.dock-bar {
+  padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track,
+  .gradient-ring::after {
+    animation: none;
+  }
+}

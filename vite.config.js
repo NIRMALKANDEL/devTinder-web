@@ -12,6 +12,7 @@ export default defineConfig({
         target: "http://localhost:7777",
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ""),
+        ws: true, // Added: chat (Socket.IO) runs through the same proxy
       },
     },
   },

@@ -156,3 +156,80 @@ export const MoonIcon = ({ className = "w-5 h-5" }) => (
     <path d='M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z' />
   </svg>
 );
+
+// Added: icons for chat, settings, themes, safety (block/report) and filters
+export const ChatIcon = ({ className = "w-5 h-5" }) => (
+  <svg {...base} className={className}>
+    <path d='M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z' />
+  </svg>
+);
+
+export const SendIcon = ({ className = "w-5 h-5" }) => (
+  <svg {...base} className={className}>
+    <path d='M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z' />
+  </svg>
+);
+
+export const SettingsIcon = ({ className = "w-5 h-5" }) => (
+  <svg {...base} className={className}>
+    <circle cx='12' cy='12' r='3' />
+    <path d='M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z' />
+  </svg>
+);
+
+export const PaletteIcon = ({ className = "w-5 h-5" }) => (
+  <svg {...base} className={className}>
+    <path d='M12 22a10 10 0 1 1 10-10c0 2.5-2 4-4.5 4H15a2 2 0 0 0-1.5 3.3A1.6 1.6 0 0 1 12 22z' />
+    <circle cx='7.5' cy='11' r='1' />
+    <circle cx='10.5' cy='7' r='1' />
+    <circle cx='15.5' cy='7.5' r='1' />
+  </svg>
+);
+
+export const FlagIcon = ({ className = "w-5 h-5" }) => (
+  <svg {...base} className={className}>
+    <path d='M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7' />
+  </svg>
+);
+
+export const BanIcon = ({ className = "w-5 h-5" }) => (
+  <svg {...base} className={className}>
+    <circle cx='12' cy='12' r='10' />
+    <path d='M4.93 4.93l14.14 14.14' />
+  </svg>
+);
+
+export const MoreIcon = ({ className = "w-5 h-5" }) => (
+  <svg {...base} className={className}>
+    <circle cx='12' cy='5' r='1' />
+    <circle cx='12' cy='12' r='1' />
+    <circle cx='12' cy='19' r='1' />
+  </svg>
+);
+
+export const TrashIcon = ({ className = "w-5 h-5" }) => (
+  <svg {...base} className={className}>
+    <path d='M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6' />
+    <path d='M10 11v6M14 11v6' />
+  </svg>
+);
+
+export const FilterIcon = ({ className = "w-5 h-5" }) => (
+  <svg {...base} className={className}>
+    <path d='M22 3H2l8 9.46V19l4 2v-8.54z' />
+  </svg>
+);
+
+export const SparklesIcon = ({ className = "w-5 h-5" }) => (
+  <svg {...base} className={className}>
+    <path d='M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z' />
+    <path d='M19 15l.9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9z' />
+  </svg>
+);
+
+export const MonitorIcon = ({ className = "w-5 h-5" }) => (
+  <svg {...base} className={className}>
+    <rect x='2' y='3' width='20' height='14' rx='2' />
+    <path d='M8 21h8M12 17v4' />
+  </svg>
+);

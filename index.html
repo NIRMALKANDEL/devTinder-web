@@ -16,15 +16,23 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@500&family=Space+Grotesk:wght@500;600;700&display=swap"
       rel="stylesheet" />
     <title>DevTinder</title>
-    <!-- Added: apply the saved light/dark choice before the app renders (no theme flash) -->
+    <!-- Added: apply the saved light/dark mode and color skin before the app renders (no theme flash).
+         Keep the skin list in sync with src/utils/theme.js. /login always uses Classic. -->
     <script>
-      try {
-        var t = localStorage.getItem("theme");
-        if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t);
-      } catch (e) {}
+      (function () {
+        var d = document.documentElement, t = null, s = null;
+        try {
+          t = localStorage.getItem("theme");
+          s = localStorage.getItem("skin");
+        } catch (e) {}
+        if (t === "light" || t === "dark") d.setAttribute("data-theme", t);
+        if (["aurora", "ocean", "sunset", "forest", "mono", "classic"].indexOf(s) < 0) s = "aurora";
+        if (location.pathname.replace(/\/+$/, "") === "/login") s = "classic";
+        d.setAttribute("data-skin", s);
+      })();
     </script>
   </head>
   <body>

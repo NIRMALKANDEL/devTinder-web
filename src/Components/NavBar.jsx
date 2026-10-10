@@ -5,7 +5,11 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import { motion } from "motion/react";
 import Avatar from "./Avatar";
 import ThemeToggle from "./ThemeToggle";
-import { FlameIcon, InboxIcon, LogoutIcon, UserIcon, UsersIcon } from "./Icons";
+import ThemePicker from "./ThemePicker";
+import { FlameIcon, LogoutIcon, SettingsIcon, UserIcon } from "./Icons";
+import { NAV_LINKS } from "../utils/navLinks";
+import { disconnectSocket } from "../utils/socket";
+import { resetChat } from "../utils/chatSlice";
 import { BASE_URL } from "../utils/constants";
 import { removeUser } from "../utils/userSlice";
 import { removeFeed } from "../utils/feedSlice";
@@ -14,16 +18,15 @@ import { removeRequests } from "../utils/requestSlice";
 import { showToast } from "../utils/toastSlice";
 import { fetchRequests, getErrorMessage } from "../utils/api";
 
-const NAV_LINKS = [
-  { to: "/", label: "Feed", Icon: FlameIcon, end: true },
-  { to: "/connections", label: "Connections", Icon: UsersIcon },
-  { to: "/requests", label: "Requests", Icon: InboxIcon },
-];
 
 const NavBar = () => {
   const user = useSelector((store) => store.user);
   // Added: pending request count for a small badge (only once requests are loaded)
   const pendingCount = useSelector((store) => store.requests?.length || 0);
+  // Added: unread chat messages (across all conversations)
+  const unreadCount = useSelector((store) =>
+    Object.values(store.chat.unread).reduce((sum, n) => sum + n, 0)
+  );
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [loggingOut, setLoggingOut] = useState(false);
@@ -48,6 +51,8 @@ const NavBar = () => {
       dispatch(removeFeed());
       dispatch(removeConnections());
       dispatch(removeRequests());
+      dispatch(resetChat());
+      disconnectSocket();
       countFor.current = null;
       return navigate("/login", { replace: true });
     } catch (err) {
@@ -64,10 +69,12 @@ const NavBar = () => {
   const menuLinkClass = ({ isActive }) =>
     `rounded-lg p-2 gap-3 ${isActive ? "menu-active" : ""}`;
 
-  const countBadge = (label) =>
-    label === "Requests" && pendingCount > 0 ? (
-      <span className='badge badge-primary badge-xs tabular min-w-5'>{pendingCount}</span>
+  const countBadge = (label) => {
+    const count = label === "Requests" ? pendingCount : label === "Messages" ? unreadCount : 0;
+    return count > 0 ? (
+      <span className='badge badge-primary badge-xs tabular min-w-5'>{count}</span>
     ) : null;
+  };
 
   return (
     // UI: floating glass navbar, sticky so navigation is always reachable
@@ -121,8 +128,8 @@ const NavBar = () => {
               Welcome <span className='font-semibold'>{user.firstName}</span>
             </div>
 
-            {/* Added: light / dark mode switch */}
-            <ThemeToggle />
+            {/* Changed: full theme picker (color skin + light/dark) for logged-in users */}
+            <ThemePicker />
 
             {/* Profile Dropdown */}
             <div className='dropdown dropdown-end'>
@@ -159,16 +166,14 @@ const NavBar = () => {
                     Profile
                   </NavLink>
                 </li>
-                {/* UI: page links only needed in the dropdown on small screens */}
-                {NAV_LINKS.map(({ to, label, Icon, end }) => (
-                  <li key={to} className='md:hidden'>
-                    <NavLink to={to} end={end} className={menuLinkClass}>
-                      <Icon className='w-4 h-4' />
-                      {label}
-                      <span className='ml-auto'>{countBadge(label)}</span>
-                    </NavLink>
-                  </li>
-                ))}
+                {/* Added: settings (theme, blocked users, delete account) */}
+                <li>
+                  <NavLink to='/settings' className={menuLinkClass}>
+                    <SettingsIcon className='w-4 h-4' />
+                    Settings
+                  </NavLink>
+                </li>
+                {/* Changed: page links on phones moved to the bottom dock (MobileDock) */}
                 <li aria-hidden='true' className='border-t border-hairline my-1'></li>
                 <li>
                   <button

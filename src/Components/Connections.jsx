@@ -9,7 +9,7 @@ import EmptyState from "./EmptyState";
 import Avatar from "./Avatar";
 import ProfileLinks from "./ProfileLinks";
 import SkillChips from "./SkillChips";
-import { AlertIcon, ArrowRightIcon, SearchIcon, UsersIcon } from "./Icons";
+import { AlertIcon, ArrowRightIcon, ChatIcon, SearchIcon, UsersIcon } from "./Icons";
 
 const Connections = () => {
   const connections = useSelector((store) => store.connections);
@@ -181,7 +181,15 @@ const Connections = () => {
                 <SkillChips skills={connection.skills} />
                 <div className='flex items-center justify-between gap-3 mt-auto pt-1'>
                   <ProfileLinks portfolioUrl={connection.portfolioUrl} githubUrl={connection.githubUrl} />
-                  <span className='ml-auto text-xs font-medium text-primary inline-flex items-center gap-1 opacity-70 transition-all group-hover:opacity-100 group-hover:translate-x-0.5'>
+                  {/* Added: jump straight into a chat (sits above the stretched card link) */}
+                  <Link
+                    to={`/messages/${connection._id}`}
+                    className='relative z-[2] btn btn-sm btn-primary btn-soft rounded-full gap-1.5 ml-auto'
+                    aria-label={`Message ${connection.firstName}`}>
+                    <ChatIcon className='w-3.5 h-3.5' />
+                    Message
+                  </Link>
+                  <span className='text-xs font-medium text-primary inline-flex items-center gap-1 opacity-70 transition-all group-hover:opacity-100 group-hover:translate-x-0.5'>
                     View profile
                     <ArrowRightIcon className='w-3.5 h-3.5' />
                   </span>

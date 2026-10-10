@@ -6,9 +6,10 @@ import { useDispatch, useSelector } from "react-redux";
 // Added: appendFeed to add paginated users without replacing existing ones
 import { addFeed, appendFeed, removeUserFromFeed, restoreUserToFeed } from "../utils/feedSlice";
 import { showToast } from "../utils/toastSlice";
-import { getErrorMessage } from "../utils/api";
+import { fetchConnections, getErrorMessage } from "../utils/api";
 import UserCard from "./UserCard";
 import EmptyState from "./EmptyState";
+import FeedHero from "./FeedHero";
 import { AlertIcon, FlameIcon } from "./Icons";
 
 // Added: number of users fetched per API page
@@ -35,7 +36,7 @@ const cardVariants = {
 
 // UI: the top card — drag left/right to choose, tilts and shows a stamp while dragging.
 // `ref` is forwarded (React 19 prop) so AnimatePresence "popLayout" can measure it.
-const SwipeCard = ({ ref, user, onAction }) => {
+const SwipeCard = ({ ref, user, onAction, onBlocked, viewerSkills }) => {
   const x = useMotionValue(0);
   const rotate = useTransform(x, [-260, 260], [-14, 14]);
   const likeOpacity = useTransform(x, [24, 120], [0, 1]);
@@ -70,14 +71,22 @@ const SwipeCard = ({ ref, user, onAction }) => {
         aria-hidden='true'>
         Ignore
       </motion.span>
-      <UserCard user={user} onAction={onAction} />
+      <UserCard user={user} onAction={onAction} onBlocked={onBlocked} viewerSkills={viewerSkills} />
     </motion.div>
   );
 };
 
 const Feed = () => {
   const feed = useSelector((store) => store.feed);
+  const me = useSelector((store) => store.user);
+  const connections = useSelector((store) => store.connections);
   const dispatch = useDispatch();
+  // Added: skill filter (sent to the API as ?skills=a,b)
+  const [skills, setSkills] = useState([]);
+  const skillsRef = useRef(skills);
+  skillsRef.current = skills;
+  // Added: only the newest feed request may update the deck (filters can change mid-request)
+  const latestRequest = useRef(0);
   // Added: pagination state (whether more remain, in-flight guard)
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -92,7 +101,10 @@ const Feed = () => {
   // Fixed: always ask for page 1. The backend already hides everyone we have sent a request to,
   // so "page 2" (skip 10) used to skip 10 *new* developers that were never shown.
   const fetchPage = async () => {
-    const res = await axios.get(BASE_URL + "/feed?page=1&limit=" + PAGE_SIZE, {
+    const filter = skillsRef.current.length
+      ? "&skills=" + encodeURIComponent(skillsRef.current.join(","))
+      : "";
+    const res = await axios.get(BASE_URL + "/feed?page=1&limit=" + PAGE_SIZE + filter, {
       withCredentials: true,
     });
     return res?.data?.data || [];
@@ -101,12 +113,15 @@ const Feed = () => {
   // Initial load: fetch only if the feed hasn't been loaded yet
   const getFeed = useCallback(async () => {
     setLoadError("");
+    const requestId = ++latestRequest.current;
     try {
       const users = await fetchPage();
+      if (requestId !== latestRequest.current) return;
       dispatch(addFeed(users));
       // Added: if the first page is already short, there are no more users
       setHasMore(users.length === PAGE_SIZE);
     } catch (err) {
+      if (requestId !== latestRequest.current) return;
       console.error("Error fetching feed:", err);
       setLoadError(getErrorMessage(err, "Couldn't load developers."));
     }
@@ -116,8 +131,10 @@ const Feed = () => {
   const loadMore = useCallback(async () => {
     setLoadingMore(true);
     setLoadError("");
+    const requestId = latestRequest.current;
     try {
       const users = await fetchPage();
+      if (requestId !== latestRequest.current) return;
       if (users.length > 0) dispatch(appendFeed(users));
       // Added: fewer than a full page means the API is exhausted, so stop requesting
       if (users.length < PAGE_SIZE) setHasMore(false);
@@ -135,6 +152,24 @@ const Feed = () => {
     requested.current = true;
     getFeed();
   }, [feed, getFeed]);
+
+  // Added: connections power the hero stats
+  useEffect(() => {
+    if (!connections) fetchConnections(dispatch).catch(() => {});
+  }, [connections, dispatch]);
+
+  // Added: changing the skill filter starts the deck over with matching developers
+  const changeSkills = (next) => {
+    setSkills(next);
+    skillsRef.current = next;
+    setHasMore(true);
+    dispatch(addFeed(null));
+    requested.current = true;
+    getFeed();
+  };
+
+  // Added: a blocked user leaves the deck right away
+  const onBlocked = (user) => dispatch(removeUserFromFeed(user._id));
 
   // Added: when two or fewer cards remain, fetch more — but only after pending
   // Ignore/Interested requests finish, so the backend doesn't send those users back
@@ -232,10 +267,15 @@ const Feed = () => {
       deck = (
         <EmptyState
           icon={<FlameIcon className='w-7 h-7' />}
-          title='No more users available'
-          message="You've seen everyone for now. Check back later for new developers."
-          actionText='View connections'
-          actionTo='/connections'
+          title={skills.length ? "No one matches these skills" : "No more users available"}
+          message={
+            skills.length
+              ? "Try removing a skill filter to see more developers."
+              : "You've seen everyone for now. Check back later for new developers."
+          }
+          actionText={skills.length ? "Clear filters" : "View connections"}
+          actionTo={skills.length ? undefined : "/connections"}
+          onAction={skills.length ? () => changeSkills([]) : undefined}
         />
       );
   } else {
@@ -254,24 +294,29 @@ const Feed = () => {
           </>
         )}
         <AnimatePresence mode='popLayout' initial={false} custom={exitDir}>
-          <SwipeCard key={feed[0]._id} user={feed[0]} onAction={sendRequest} />
+          <SwipeCard
+            key={feed[0]._id}
+            user={feed[0]}
+            onAction={sendRequest}
+            onBlocked={onBlocked}
+            viewerSkills={me?.skills}
+          />
         </AnimatePresence>
       </div>
     );
   }
 
   return (
-    // Changed: the deck stands alone, centered (profile / request tiles were removed from the feed)
-    <section aria-label='Discover developers' className='max-w-sm mx-auto flex flex-col'>
-      <div className='mb-4 sm:mb-6 text-center'>
-        <h1 className='text-3xl sm:text-4xl font-bold tracking-tight'>
-          <span className='text-gradient'>Discover</span>
-        </h1>
-        <p className='text-sm opacity-70 mt-1 max-w-xs sm:max-w-none mx-auto'>
-          Developers you haven't met yet. Swipe right to connect.
-          <span className='hidden md:inline'> Or use the ← → keys.</span>
-        </p>
-      </div>
+    // Changed: hero (3D scene, stats, skill filter) beside the deck on large screens
+    <div className='grid lg:grid-cols-[1fr_24rem] gap-6 lg:gap-10 items-start'>
+      <FeedHero
+        skills={skills}
+        onSkillsChange={changeSkills}
+        suggestions={[...new Set([...(me?.skills || []), ...(feed || []).flatMap((u) => u.skills || [])])]}
+      />
+    {/* On phones the deck comes first (it's the main action); hero + filter follow */}
+    <section aria-label='Discover developers' className='w-full max-w-sm mx-auto flex flex-col order-first lg:order-none lg:sticky lg:top-24'>
+      <p className='lg:hidden text-sm font-medium opacity-70 mb-3 text-center'>Swipe right to connect, left to skip</p>
       <div className='pb-6'>{deck}</div>
       {/* Changed: show a loading hint while the next page is fetched (was the misleading "X left" count) */}
       {feed?.length > 0 && loadingMore && (
@@ -289,6 +334,7 @@ const Feed = () => {
         </p>
       )}
     </section>
+    </div>
   );
 };
 export default Feed;
