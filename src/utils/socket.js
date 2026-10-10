@@ -11,7 +11,8 @@ export const getSocket = () => {
       path: "/api/socket.io",
       withCredentials: true,
       autoConnect: false,
-      transports: ["websocket", "polling"],
+      // default transports: start with HTTP long-polling, upgrade to WebSocket when
+      // the proxy allows it, so chat still works if a proxy blocks WebSockets
     });
   }
   return socket;

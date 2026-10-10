@@ -210,7 +210,9 @@ const Feed = () => {
   useEffect(() => {
     const onKey = (e) => {
       if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
-      if (e.target.closest?.("input, textarea, select, [contenteditable='true'], .dropdown")) return;
+      if (e.target.closest?.("input, textarea, select, [contenteditable='true'], .dropdown, dialog")) return;
+      // Fixed: never swipe while a dialog (e.g. Block / Report) is open
+      if (document.querySelector("dialog[open]")) return;
       if (e.key === "ArrowLeft") sendRef.current("ignored");
       else if (e.key === "ArrowRight") sendRef.current("interested");
     };
