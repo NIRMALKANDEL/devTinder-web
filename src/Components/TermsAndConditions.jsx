@@ -84,22 +84,44 @@ const TermsAndConditions = () => (
       />
     </PolicySection>
 
-    <PolicySection title='7. Premium (planned)'>
+    <PolicySection title='7. Premium'>
       <p>
-        A paid Premium offering is planned but is <strong>not currently available for purchase</strong>, and no
-        payments are processed on DevTinder today. Details are on the{" "}
+        DevTinder Premium is an optional, paid upgrade described on the{" "}
         <Link to='/premium' className='link link-primary'>
           Premium
         </Link>{" "}
-        page. Additional terms for Premium, including the{" "}
+        page, where the current price and duration are shown before you pay.
+      </p>
+      <PolicyList
+        items={[
+          "Premium is a one-time payment in Indian rupees (₹) for a fixed number of days. It does not renew automatically. Buying again while Premium is active adds the new days to your current end date.",
+          "Payments are processed by Razorpay. Premium is activated only after the payment is confirmed.",
+          "Premium is currently offered in India only and applies to the DevTinder account used to buy it. It can't be transferred.",
+          "Premium benefits are: daily developer recommendations, being shown earlier in other users' feeds, and starting video calls with your connections. Premium does not guarantee any connection or outcome.",
+          "Features may change over time. If a Premium benefit is removed while you have active Premium, we will tell you and offer a fair remedy.",
+        ]}
+      />
+      <p>
+        Refunds and cancellations are covered by the{" "}
         <Link to='/refund-and-cancellation' className='link link-primary'>
           Refund and Cancellation Policy
         </Link>
-        , will apply once it launches.
+        .
       </p>
     </PolicySection>
 
-    <PolicySection title='8. Intellectual property'>
+    <PolicySection title='8. Calls'>
+      <PolicyList
+        items={[
+          "You can call only your accepted connections. Audio calls are available to all users; starting a video call requires active Premium.",
+          "The other person must accept a call. Do not call repeatedly after someone declines or ignores you.",
+          "Do not record, screenshot or share another person's call without their consent, and do not use calls for harassment, explicit content or anything else these Terms prohibit.",
+          "Call quality depends on your device and network, and calls may not connect on every network.",
+        ]}
+      />
+    </PolicySection>
+
+    <PolicySection title='9. Intellectual property'>
       <p>
         The DevTinder name, logo, design, software and other Platform materials (excluding content provided by users)
         belong to DevTinder or its licensors. You may not copy, modify, distribute or reverse engineer them without
@@ -107,7 +129,7 @@ const TermsAndConditions = () => (
       </p>
     </PolicySection>
 
-    <PolicySection title='9. Suspension and termination'>
+    <PolicySection title='10. Suspension and termination'>
       <p>
         You may stop using DevTinder and delete your account at any time from Settings. We may suspend or remove an
         account, or limit access to features, if it breaks these Terms, puts other users at risk, or if required by
@@ -115,28 +137,28 @@ const TermsAndConditions = () => (
       </p>
     </PolicySection>
 
-    <PolicySection title='10. Limitation of liability'>
+    <PolicySection title='11. Limitation of liability'>
       <p>
         To the extent permitted by law, DevTinder is not liable for indirect or consequential losses, or for the
         conduct of other users. Nothing in these Terms limits any rights you have that cannot be limited by law.
       </p>
     </PolicySection>
 
-    <PolicySection title='11. Governing law'>
+    <PolicySection title='12. Governing law'>
       <p>
         These Terms are governed by the laws of India, and disputes are subject to the exclusive jurisdiction
         of the courts in Indore, Madhya Pradesh.
       </p>
     </PolicySection>
 
-    <PolicySection title='12. Changes to these terms'>
+    <PolicySection title='13. Changes to these terms'>
       <p>
         We may update these Terms from time to time. The "Last updated" date at the top shows the latest version.
         Continuing to use DevTinder after a change means you accept the updated Terms.
       </p>
     </PolicySection>
 
-    <PolicySection title='13. Contact'>
+    <PolicySection title='14. Contact'>
       <p>
         Questions about these Terms? See the{" "}
         <Link to='/contact' className='link link-primary'>

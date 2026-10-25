@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import PolicyLayout, { PolicyList, PolicyNotice, PolicySection } from "./PolicyLayout";
+import PolicyLayout, { PolicyList, PolicySection } from "./PolicyLayout";
 
 // Added: public Shipping and Delivery Policy page (/shipping-and-delivery)
 const ShippingPolicy = () => (
@@ -19,25 +19,21 @@ const ShippingPolicy = () => (
       </p>
     </PolicySection>
 
-    <PolicySection title='3. Planned Premium delivery'>
-      <PolicyNotice title='Premium is not available yet'>
-        Premium cannot be purchased today, and payment-based activation is not yet in place. The steps below describe
-        how delivery is intended to work once Premium launches.
-      </PolicyNotice>
+    <PolicySection title='3. Premium delivery'>
       <p>
-        The planned{" "}
+        The{" "}
         <Link to='/premium' className='link link-primary'>
           Premium
         </Link>{" "}
-        upgrade will be delivered digitally to your DevTinder account:
+        upgrade is delivered digitally to your DevTinder account:
       </p>
       <PolicyList
         items={[
-          "You choose Premium while logged in to your DevTinder account and complete payment.",
+          "You choose Premium while logged in to your DevTinder account and complete payment through Razorpay.",
           "Once the payment is confirmed, Premium features are applied to that account. No physical item is sent.",
           "A confirmation is sent to the email address registered on your account.",
           "Premium is expected to activate immediately after payment is confirmed, and at most within 24 hours.",
-          "Premium lasts for 30 days from activation and does not renew automatically.",
+          "Premium lasts for 30 days from activation and does not renew automatically. If a payment is still being confirmed by your bank, Premium activates automatically once it is confirmed.",
         ]}
       />
     </PolicySection>
@@ -60,8 +56,8 @@ const ShippingPolicy = () => (
     <PolicySection title='5. Service availability'>
       <p>
         DevTinder is available online wherever the website can be accessed. Occasional downtime for maintenance or
-        technical issues may delay access to features. Premium is planned to be offered in India only, with payments in
-        Indian rupees (₹).
+        technical issues may delay access to features. Premium is offered in India only, with payments in Indian rupees
+        (₹).
       </p>
     </PolicySection>
   </PolicyLayout>

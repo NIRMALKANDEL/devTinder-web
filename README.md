@@ -18,6 +18,9 @@ Backend repo: [NIRMALKANDEL/devTinder](https://github.com/NIRMALKANDEL/devTinder
 - **Links** — optional Portfolio and **GitHub** links (GitHub must be a github.com link), shown on cards and profiles
 - **Light / dark mode** switch in the navbar (remembers your choice; follows the system theme until you pick one)
 - **404 page** for unknown URLs; every route works on direct load and refresh
+- **Premium** (`/premium`, also in the profile menu below Profile) — price from the backend, Razorpay Standard Checkout (`checkout.js` is loaded only on this page), payment verification, pending/failed/cancelled handling, Free vs Premium table, FAQs, and today's 5 recommendations for Premium members
+- **Calls** — audio (everyone) and video (Premium) calls with connections from the chat header or their profile; incoming-call card, ringing, mute, camera on/off, switch camera, call timer, reconnect handling. WebRTC media, Socket.IO signaling (`CallProvider.jsx`, `CallOverlay.jsx`, `utils/webrtc.js`)
+- **Grievance and Customer Support** page (`/grievance`), linked in the footer
 
 ### UI/UX
 

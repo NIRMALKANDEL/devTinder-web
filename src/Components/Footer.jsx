@@ -11,6 +11,7 @@ const FOOTER_LINKS = [
   { to: "/refund-and-cancellation", label: "Refund and Cancellation Policy" },
   { to: "/shipping-and-delivery", label: "Shipping and Delivery Policy" },
   { to: "/contact", label: "Contact Us" },
+  { to: "/grievance", label: "Grievance and Customer Support" },
   { to: "/premium", label: "Premium" },
 ];
 

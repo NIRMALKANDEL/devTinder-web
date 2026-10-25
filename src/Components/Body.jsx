@@ -14,6 +14,7 @@ import { applySkin, isLoginPath } from "../utils/theme";
 import { connectSocket, disconnectSocket } from "../utils/socket";
 import { messageArrived } from "../utils/chatSlice";
 import MobileDock from "./MobileDock";
+import CallProvider from "./CallProvider";
 
 // Added: pages that need a logged-in user (login, reset-password and 404 stay public)
 const PROTECTED_PATHS = ["/", "/profile", "/connections", "/requests", "/messages", "/settings"];
@@ -120,34 +121,37 @@ const Body = () => {
   }
 
   return (
-    // UI: full-height column so the footer sits at the bottom without covering content
-    <div className='min-h-[100dvh] flex flex-col overflow-x-clip'>
-      <div className='app-backdrop' aria-hidden='true'></div>
-      <a href='#main' className='skip-link'>
-        Skip to content
-      </a>
-      <NavBar />
-      <AnimatePresence mode='wait' initial={false}>
-        <motion.main
-          // Switching between chats stays on one Messages page (no page transition)
-          key={pathname.startsWith("/messages") ? "/messages" : pathname}
-          id='main'
-          tabIndex={-1}
-          initial={{ opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -8 }}
-          transition={{ duration: 0.24, ease: [0.2, 0.8, 0.2, 1] }}
-          className={`flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 pt-4 sm:pt-6 outline-none ${
-            userData && !isLoginPath(pathname) ? "pb-28 md:pb-16" : "pb-16"
-          }`}>
-          {content}
-        </motion.main>
-      </AnimatePresence>
-      <Footer />
-      {/* Added: bottom navigation on phones */}
-      {userData && !isLoginPath(pathname) && <MobileDock />}
-      <Toast />
-    </div>
+    // Added: CallProvider gives every page in-app calling (and shows incoming calls)
+    <CallProvider>
+      {/* UI: full-height column so the footer sits at the bottom without covering content */}
+      <div className='min-h-[100dvh] flex flex-col overflow-x-clip'>
+        <div className='app-backdrop' aria-hidden='true'></div>
+        <a href='#main' className='skip-link'>
+          Skip to content
+        </a>
+        <NavBar />
+        <AnimatePresence mode='wait' initial={false}>
+          <motion.main
+            // Switching between chats stays on one Messages page (no page transition)
+            key={pathname.startsWith("/messages") ? "/messages" : pathname}
+            id='main'
+            tabIndex={-1}
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.24, ease: [0.2, 0.8, 0.2, 1] }}
+            className={`flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 pt-4 sm:pt-6 outline-none ${
+              userData && !isLoginPath(pathname) ? "pb-28 md:pb-16" : "pb-16"
+            }`}>
+            {content}
+          </motion.main>
+        </AnimatePresence>
+        <Footer />
+        {/* Added: bottom navigation on phones */}
+        {userData && !isLoginPath(pathname) && <MobileDock />}
+        <Toast />
+      </div>
+    </CallProvider>
   );
 };
 

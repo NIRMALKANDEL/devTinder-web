@@ -6,29 +6,28 @@ import { CONTACT } from "../utils/constants";
 // Added: public Refund and Cancellation Policy page (/refund-and-cancellation)
 const RefundPolicy = () => (
   <PolicyLayout title='Refund and Cancellation Policy'>
-    <PolicyNotice title='Payments are not live yet'>
-      DevTinder does not currently accept payments, and no payment gateway is connected. Premium cannot be purchased
-      today, so no charges or refunds can occur at this time. This policy describes how refunds and cancellations are
-      intended to work once the planned Premium offering launches.
+    <PolicyNotice title='In short'>
+      Premium is a one-time purchase with no auto-renewal. Refunds are given for duplicate charges, or if you were
+      charged and Premium wasn't added and support couldn't fix it, when requested within 7 days.
     </PolicyNotice>
 
     <PolicySection title='1. Scope'>
       <p>
-        This policy will apply to the planned{" "}
+        This policy applies to{" "}
         <Link to='/premium' className='link link-primary'>
           DevTinder Premium
-        </Link>{" "}
-        offering: a one-time payment for a 30-day digital upgrade to your DevTinder account. Premium is planned to be
-        offered in India only, with payments in Indian rupees (₹). Using DevTinder's free features
-        involves no payment and is not covered by this policy.
+        </Link>
+        : a one-time payment for a 30-day digital upgrade to your DevTinder account. Premium is offered in India only,
+        with payments in Indian rupees (₹) processed by Razorpay. Using DevTinder's free features involves no payment
+        and is not covered by this policy.
       </p>
     </PolicySection>
 
     <PolicySection title='2. Nature of the purchase'>
       <PolicyList
         items={[
-          "Premium is planned as a one-time digital purchase, not a recurring subscription. It does not renew automatically, so there is nothing to cancel.",
-          "Each purchase gives 30 days of Premium from the time it is activated.",
+          "Premium is a one-time digital purchase, not a recurring subscription. It does not renew automatically, so there is nothing to cancel.",
+          "Each purchase gives 30 days of Premium from the time it is activated. Buying again while Premium is active adds 30 days to your current end date.",
           "Premium features are applied to your DevTinder account and are not transferable to another account.",
         ]}
       />
@@ -36,7 +35,7 @@ const RefundPolicy = () => (
 
     <PolicySection title='3. Cancellation'>
       <p>
-        Because Premium is planned as a one-time purchase, there is no subscription to cancel. If you start a payment
+        Because Premium is a one-time purchase, there is no subscription to cancel. If you start a payment
         and do not complete it, no Premium purchase is made.
       </p>
       <p>
@@ -95,7 +94,7 @@ const RefundPolicy = () => (
         items={[
           "The email address of your DevTinder account.",
           "The payment date and amount.",
-          "The transaction or order reference from your payment confirmation.",
+          "The Razorpay payment ID (pay_...) or order ID (order_...) from your payment confirmation.",
           "The reason for your request.",
         ]}
       />
@@ -121,8 +120,12 @@ const RefundPolicy = () => (
 
     <PolicySection title='9. Changes to this policy'>
       <p>
-        This policy will be finalised before Premium becomes available for purchase. The "Last updated" date at the top
-        shows the latest version.
+        We may update this policy from time to time. A change never affects a purchase you already made. The "Last
+        updated" date at the top shows the latest version. For complaints, see{" "}
+        <Link to='/grievance' className='link link-primary'>
+          Grievance and Customer Support
+        </Link>
+        .
       </p>
     </PolicySection>
   </PolicyLayout>

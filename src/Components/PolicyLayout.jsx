@@ -4,7 +4,7 @@ import PageHeader from "./PageHeader";
 
 // Added: shared layout for the public information pages (terms, privacy, refunds,
 // shipping, contact, premium). They are not in Body's PROTECTED_PATHS, so no login is needed.
-const LAST_UPDATED = "14 October 2026";
+const LAST_UPDATED = "25 October 2026";
 
 const PolicyLayout = ({ title, subtitle = `Last updated: ${LAST_UPDATED}`, children }) => (
   <div className='max-w-3xl mx-auto w-full'>

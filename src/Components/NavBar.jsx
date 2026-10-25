@@ -6,7 +6,7 @@ import { motion } from "motion/react";
 import Avatar from "./Avatar";
 import ThemeToggle from "./ThemeToggle";
 import ThemePicker from "./ThemePicker";
-import { FlameIcon, LogoutIcon, SettingsIcon, UserIcon } from "./Icons";
+import { CrownIcon, FlameIcon, LogoutIcon, SettingsIcon, UserIcon } from "./Icons";
 import { NAV_LINKS } from "../utils/navLinks";
 import { disconnectSocket } from "../utils/socket";
 import { resetChat } from "../utils/chatSlice";
@@ -164,6 +164,14 @@ const NavBar = () => {
                   <NavLink to='/profile' className={menuLinkClass}>
                     <UserIcon className='w-4 h-4' />
                     Profile
+                  </NavLink>
+                </li>
+                {/* Added: Premium page (plan, checkout, daily picks) */}
+                <li>
+                  <NavLink to='/premium' className={menuLinkClass}>
+                    <CrownIcon className='w-4 h-4' />
+                    Premium
+                    {user.isPremium && <span className='badge badge-primary badge-xs ml-auto'>Active</span>}
                   </NavLink>
                 </li>
                 {/* Added: settings (theme, blocked users, delete account) */}

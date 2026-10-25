@@ -9,6 +9,7 @@ import EmptyState from "./EmptyState";
 import Avatar from "./Avatar";
 import SkillChips from "./SkillChips";
 import SafetyMenu from "./SafetyMenu";
+import CallButtons from "./CallButtons";
 import { addConnections } from "../utils/connectionSlice";
 import { AlertIcon, ArrowRightIcon, ChatIcon, CheckIcon, GithubIcon, LinkIcon, UsersIcon } from "./Icons";
 
@@ -125,6 +126,8 @@ const ConnectionProfile = () => {
             <ChatIcon className='w-4 h-4' />
             Message
           </Link>
+          {/* Added: audio / video call */}
+          <CallButtons user={person} />
           <SafetyMenu
             user={person}
             onBlocked={() => {

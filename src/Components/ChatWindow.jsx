@@ -8,6 +8,7 @@ import { getErrorMessage } from "../utils/api";
 import { getSocket } from "../utils/socket";
 import { openChat } from "../utils/chatSlice";
 import Avatar from "./Avatar";
+import CallButtons from "./CallButtons";
 import { AlertIcon, BackIcon, SendIcon } from "./Icons";
 
 const timeOf = (date) =>
@@ -186,6 +187,8 @@ const ChatWindow = ({ otherUser, onBack }) => {
             </p>
           </div>
         </Link>
+        {/* Added: audio / video call */}
+        <CallButtons user={otherUser} className='ml-auto shrink-0' />
       </header>
 
       <div ref={scroller} onScroll={onScroll} className='flex-1 min-h-0 overflow-y-auto px-4 py-4 flex flex-col gap-1.5'>

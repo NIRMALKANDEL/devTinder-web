@@ -54,9 +54,14 @@ const Contact = () => (
 
     <PolicySection title='Payments and refunds'>
       <p>
-        DevTinder does not currently accept payments. For how refunds will work once Premium launches, see the{" "}
+        For a problem with a Premium payment, email us with your account email and the Razorpay payment or order ID.
+        See the{" "}
         <Link to='/refund-and-cancellation' className='link link-primary'>
           Refund and Cancellation Policy
+        </Link>{" "}
+        and{" "}
+        <Link to='/grievance' className='link link-primary'>
+          Grievance and Customer Support
         </Link>
         .
       </p>

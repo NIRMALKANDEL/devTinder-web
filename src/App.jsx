@@ -22,6 +22,7 @@ const RefundPolicy = lazy(() => import("./Components/RefundPolicy"));
 const ShippingPolicy = lazy(() => import("./Components/ShippingPolicy"));
 const Contact = lazy(() => import("./Components/Contact"));
 const Premium = lazy(() => import("./Components/Premium"));
+const Grievance = lazy(() => import("./Components/Grievance"));
 const pageFallback = (
   <div className='flex justify-center py-24' aria-label='Loading'>
     <span className='loading loading-spinner loading-lg text-primary'></span>
@@ -55,6 +56,7 @@ function App() {
                 <Route path='/shipping-and-delivery' element={<Suspense fallback={pageFallback}><ShippingPolicy /></Suspense>} />
                 <Route path='/contact' element={<Suspense fallback={pageFallback}><Contact /></Suspense>} />
                 <Route path='/premium' element={<Suspense fallback={pageFallback}><Premium /></Suspense>} />
+                <Route path='/grievance' element={<Suspense fallback={pageFallback}><Grievance /></Suspense>} />
                 {/* Added: any unknown URL shows a 404 page instead of a blank page */}
                 <Route path='*' element={<NotFound />} />
               </Route>

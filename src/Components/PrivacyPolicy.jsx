@@ -34,7 +34,18 @@ const PrivacyPolicy = () => (
         address, browser type and request time), which may be recorded in server logs and used for security, for
         example rate limiting and abuse prevention.
       </p>
-      <p>We do not collect payment card or bank details. Payments are not currently processed on DevTinder.</p>
+      <p>
+        <strong>Premium payments</strong>: payments are handled by Razorpay. We do not collect or store your card, UPI
+        or bank details. We keep the Razorpay order and payment references, the amount, the plan, the payment status
+        and dates, and your Premium end date.
+      </p>
+      <p>
+        <strong>Calls</strong>: to connect a call we process who is calling whom, the call type (audio or video) and
+        technical connection details. Calls are never recorded, and we do not store call audio, video or call history.
+        Calls go directly between the two devices where possible, so the other person's device can see your network
+        (IP) address; on some networks the call is relayed through a TURN relay server instead. Your phone number is
+        never used or shared for calls.
+      </p>
     </PolicySection>
 
     <PolicySection title='3. Cookies and local storage'>
@@ -55,7 +66,8 @@ const PrivacyPolicy = () => (
         items={[
           "To create and manage your account, including email verification and password resets.",
           "To show your profile to other developers and show you relevant profiles in your feed.",
-          "To deliver connection requests and chat messages.",
+          "To deliver connection requests and chat messages, and to connect calls between connections.",
+          "To process Premium payments, activate Premium, and handle refunds and payment disputes.",
           "To send service emails, such as verification links, password resets, and notifications about requests and new connections.",
           "To keep DevTinder safe: blocking, handling reports, preventing spam and abuse, and securing accounts.",
           "To fix problems and improve the Platform.",
@@ -74,6 +86,8 @@ const PrivacyPolicy = () => (
           "MongoDB Atlas: database where account, profile, connection and chat data is stored (Mumbai, India region).",
           "Amazon Web Services (AWS): servers that run the Platform, and Amazon SES for sending service emails.",
           "Cloudflare: domain name service, network security and content delivery.",
+          "Razorpay: processes Premium payments. Razorpay handles your payment details under its own privacy policy.",
+          "A TURN relay server, used only when a call can't connect directly between devices. It forwards encrypted call audio/video and does not record it.",
         ]}
       />
     </PolicySection>
@@ -99,6 +113,7 @@ const PrivacyPolicy = () => (
           "Server logs are kept for up to 90 days.",
           "Backups are overwritten within 30 days, so deleted data is removed from backups within that time.",
           "Reports that other users filed about a deleted account may be kept for up to 6 months for safety reasons.",
+          "Payment records are kept even after you delete your account, for as long as needed for accounting, tax, refund and dispute purposes.",
         ]}
       />
     </PolicySection>
