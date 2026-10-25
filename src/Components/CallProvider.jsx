@@ -39,6 +39,7 @@ const IDLE = {
 const CONNECT_TIMEOUT_MS = 25000;
 const RECOVER_TIMEOUT_MS = 15000;
 const ACK_TIMEOUT_MS = 8000;
+const CONNECT_FAILED = "Couldn't connect the call. One of your networks may be blocking calls; try Wi-Fi or another network.";
 
 const nameOf = (peer) => peer?.firstName || "They";
 
@@ -118,8 +119,8 @@ const CallProvider = ({ children }) => {
     clearTimer("connect");
     timers.current.connect = setTimeout(() => {
       if (callRef.current.status === "active") return;
-      getSocket().emit("call:end", { callId: callRef.current.callId });
-      finish("Couldn't connect the call. Your network may be blocking calls; try another network.");
+      getSocket().emit("call:end", { callId: callRef.current.callId, reason: "failed" });
+      finish(CONNECT_FAILED);
     }, CONNECT_TIMEOUT_MS);
   };
 
@@ -130,7 +131,7 @@ const CallProvider = ({ children }) => {
     if (!timers.current.recover) {
       timers.current.recover = setTimeout(() => {
         if (pcRef.current && pcRef.current.connectionState !== "connected") {
-          getSocket().emit("call:end", { callId: callRef.current.callId });
+          getSocket().emit("call:end", { callId: callRef.current.callId, reason: "failed" });
           finish("The call dropped because of a connection problem.");
         }
       }, RECOVER_TIMEOUT_MS);
@@ -384,6 +385,7 @@ const CallProvider = ({ children }) => {
       timeout: [caller ? `No answer from ${name}.` : `Missed call from ${name}.`],
       cancelled: [`Missed call from ${name}.`],
       disconnected: ["The call dropped because of a connection problem."],
+      failed: [current.status === "active" ? "The call dropped because of a connection problem." : CONNECT_FAILED],
     };
     if (reason === "ended") return finish(current.status === "active" ? "ended" : `${name} ended the call.`);
     finish(...(messages[reason] || ["Call ended."]));
