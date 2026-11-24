@@ -62,7 +62,8 @@ const GoogleSignIn = ({ mode = "signup", onSuccess, onError }) => {
           size: "large",
           shape: "pill",
           text: mode === "login" ? "signin_with" : "signup_with",
-          width: Math.min(boxRef.current.offsetWidth || 360, 400),
+          // Fixed: fit the card on phones (Google's button accepts 200-400 px)
+          width: Math.max(200, Math.min(boxRef.current.offsetWidth || 300, 400)),
         });
         setReady(true);
       } catch {
@@ -75,7 +76,8 @@ const GoogleSignIn = ({ mode = "signup", onSuccess, onError }) => {
   }, [mode]);
 
   return (
-    <div className={ready ? "flex flex-col gap-4" : "hidden"}>
+    // Not "hidden" while loading: the box must keep its width so the button can be sized to it
+    <div className={ready ? "flex flex-col gap-4" : "invisible h-0 overflow-hidden"} aria-hidden={!ready}>
       <div className='relative flex justify-center min-h-10'>
         <div ref={boxRef} className='w-full flex justify-center' aria-busy={busy}></div>
         {busy && (

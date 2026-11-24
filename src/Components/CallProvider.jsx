@@ -168,10 +168,18 @@ const CallProvider = ({ children }) => {
 
   const createPeer = async () => {
     const config = await iceRef.current;
-    const pc = new RTCPeerConnection({
-      iceServers: config.iceServers,
-      iceTransportPolicy: config.iceTransportPolicy || "all",
-    });
+    let pc;
+    try {
+      pc = new RTCPeerConnection({
+        iceServers: config.iceServers,
+        iceTransportPolicy: config.iceTransportPolicy || "all",
+      });
+    } catch (err) {
+      // Fixed: a bad STUN/TURN entry from the server used to fail the whole call with
+      // "Couldn't start your camera". Fall back to Google's public STUN server instead.
+      console.error("[call] invalid ICE config, using STUN only:", err);
+      pc = new RTCPeerConnection({ iceServers: [{ urls: "stun:stun.l.google.com:19302" }] });
+    }
     localRef.current?.getTracks().forEach((track) => pc.addTrack(track, localRef.current));
     pc.onicecandidate = (e) => {
       if (e.candidate) sendSignal({ type: "candidate", candidate: e.candidate.toJSON() });
