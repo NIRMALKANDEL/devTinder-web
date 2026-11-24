@@ -9,7 +9,8 @@ import { showToast } from "../utils/toastSlice";
 import { fetchConnections, getErrorMessage } from "../utils/api";
 import UserCard from "./UserCard";
 import EmptyState from "./EmptyState";
-import FeedHero from "./FeedHero";
+import SkillFilter from "./SkillFilter";
+import NetworkRail from "./NetworkRail";
 import { AlertIcon, FlameIcon } from "./Icons";
 
 // Added: number of users fetched per API page
@@ -153,7 +154,7 @@ const Feed = () => {
     getFeed();
   }, [feed, getFeed]);
 
-  // Added: connections power the hero stats
+  // Added: connections fill the side panel
   useEffect(() => {
     if (!connections) fetchConnections(dispatch).catch(() => {});
   }, [connections, dispatch]);
@@ -308,34 +309,53 @@ const Feed = () => {
     );
   }
 
+  const suggestions = [...new Set([...(me?.skills || []), ...(feed || []).flatMap((u) => u.skills || [])])];
+
   return (
-    // Changed: hero (3D scene, stats, skill filter) beside the deck on large screens
-    <div className='grid lg:grid-cols-[1fr_24rem] gap-6 lg:gap-10 items-start'>
-      <FeedHero
-        skills={skills}
-        onSkillsChange={changeSkills}
-        suggestions={[...new Set([...(me?.skills || []), ...(feed || []).flatMap((u) => u.skills || [])])]}
-      />
-    {/* On phones the deck comes first (it's the main action); hero + filter follow */}
-    <section aria-label='Discover developers' className='w-full max-w-sm mx-auto flex flex-col order-first lg:order-none lg:sticky lg:top-24'>
-      <p className='lg:hidden text-sm font-medium opacity-70 mb-3 text-center'>Swipe right to connect, left to skip</p>
-      <div className='pb-6'>{deck}</div>
-      {/* Changed: show a loading hint while the next page is fetched (was the misleading "X left" count) */}
-      {feed?.length > 0 && loadingMore && (
-        <p className='text-xs opacity-60 mt-4 flex items-center justify-center gap-2'>
-          <span className='loading loading-spinner loading-xs'></span>
-          Loading more developers...
-        </p>
-      )}
-      {feed?.length > 0 && loadError && (
-        <p className='text-xs mt-4 flex items-center justify-center gap-2 text-error'>
-          Couldn't load more developers.
-          <button type='button' className='link font-medium' onClick={retry}>
-            Try again
-          </button>
-        </p>
-      )}
-    </section>
+    // Changed: the deck is the centre of the page; filter (left) and your network (right) sit
+    // beside it on large screens. On phones the deck comes first, then the network, then the filter.
+    <div className='grid gap-6 lg:grid-cols-[15rem_minmax(0,1fr)_17rem] lg:gap-8 items-start'>
+      <section
+        aria-labelledby='feed-title'
+        className='w-full max-w-sm mx-auto flex flex-col lg:col-start-2 lg:row-start-1'>
+        <header className='text-center mb-5'>
+          <h1 id='feed-title' className='text-2xl sm:text-3xl font-bold tracking-tight'>
+            Meet new developers
+          </h1>
+          <p className='text-sm opacity-70 mt-1.5'>
+            Swipe right to connect, left to skip.
+            <span className='hidden md:inline'> Arrow keys work too.</span>
+          </p>
+        </header>
+        <div className='pb-6'>{deck}</div>
+        {/* Changed: show a loading hint while the next page is fetched (was the misleading "X left" count) */}
+        {feed?.length > 0 && loadingMore && (
+          <p className='text-xs opacity-60 mt-4 flex items-center justify-center gap-2'>
+            <span className='loading loading-spinner loading-xs'></span>
+            Loading more developers...
+          </p>
+        )}
+        {feed?.length > 0 && loadError && (
+          <p className='text-xs mt-4 flex items-center justify-center gap-2 text-error'>
+            Couldn't load more developers.
+            <button type='button' className='link font-medium' onClick={retry}>
+              Try again
+            </button>
+          </p>
+        )}
+      </section>
+
+      <aside
+        aria-label='Your network'
+        className='w-full max-w-sm mx-auto lg:max-w-none lg:col-start-3 lg:row-start-1 lg:sticky lg:top-24'>
+        <NetworkRail />
+      </aside>
+
+      <aside
+        aria-label='Filters'
+        className='w-full max-w-sm mx-auto lg:max-w-none lg:col-start-1 lg:row-start-1 lg:sticky lg:top-24'>
+        <SkillFilter skills={skills} onSkillsChange={changeSkills} suggestions={suggestions} />
+      </aside>
     </div>
   );
 };

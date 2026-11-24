@@ -25,6 +25,11 @@ const PrivacyPolicy = () => (
         with you.
       </p>
       <p>
+        <strong>Google sign-in</strong>: if you sign up or log in with Google, Google tells us your name, email
+        address and profile photo, and confirms that your email is verified. We don't receive your Google password or
+        access anything else in your Google account.
+      </p>
+      <p>
         <strong>Activity on the Platform</strong>: connection requests you send, accept or decline (interested /
         ignored), your connections, chat messages you exchange with connections, users you block, and reports you
         submit about other users.
@@ -52,7 +57,7 @@ const PrivacyPolicy = () => (
       <PolicyList
         items={[
           'Login cookie: when you log in we set a secure, HTTP-only cookie named "token" that keeps you signed in. It expires after one day or when you log out.',
-          "Preferences: your chosen theme (colour skin and light/dark mode) is saved in your browser's local storage so it stays the same on your next visit.",
+          "Preferences: your chosen theme (light or dark mode) is saved in your browser's local storage so it stays the same on your next visit.",
           "We do not use advertising cookies or any analytics or tracking tools.",
         ]}
       />
@@ -84,8 +89,10 @@ const PrivacyPolicy = () => (
       <PolicyList
         items={[
           "MongoDB Atlas: database where account, profile, connection and chat data is stored (Mumbai, India region).",
-          "Amazon Web Services (AWS): servers that run the Platform, and Amazon SES for sending service emails.",
-          "Cloudflare: domain name service, network security and content delivery.",
+          "Render: servers that run the Platform's backend (Singapore region).",
+          "Brevo: sends service emails such as email verification and password reset.",
+          "Cloudflare: hosts the website, and provides domain name service, network security and content delivery.",
+          "Google: lets you sign up or log in with your Google account, if you choose to.",
           "Razorpay: processes Premium payments. Razorpay handles your payment details under its own privacy policy.",
           "A TURN relay server, used only when a call can't connect directly between devices. It forwards encrypted call audio/video and does not record it.",
         ]}

@@ -97,7 +97,7 @@ const TermsAndConditions = () => (
           "Premium is a one-time payment in Indian rupees (₹) for a fixed number of days. It does not renew automatically. Buying again while Premium is active adds the new days to your current end date.",
           "Payments are processed by Razorpay. Premium is activated only after the payment is confirmed.",
           "Premium is currently offered in India only and applies to the DevTinder account used to buy it. It can't be transferred.",
-          "Premium benefits are: daily developer recommendations, being shown earlier in other users' feeds, and starting video calls with your connections. Premium does not guarantee any connection or outcome.",
+          "Premium benefits are: daily developer recommendations and being shown earlier in other users' feeds. Premium does not guarantee any connection or outcome.",
           "Features may change over time. If a Premium benefit is removed while you have active Premium, we will tell you and offer a fair remedy.",
         ]}
       />
@@ -113,7 +113,7 @@ const TermsAndConditions = () => (
     <PolicySection title='8. Calls'>
       <PolicyList
         items={[
-          "You can call only your accepted connections. Audio calls are available to all users; starting a video call requires active Premium.",
+          "You can call only your accepted connections. Audio and video calls are available to all users.",
           "The other person must accept a call. Do not call repeatedly after someone declines or ignores you.",
           "Do not record, screenshot or share another person's call without their consent, and do not use calls for harassment, explicit content or anything else these Terms prohibit.",
           "Call quality depends on your device and network, and calls may not connect on every network.",

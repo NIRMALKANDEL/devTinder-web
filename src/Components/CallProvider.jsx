@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
 import { CallContext } from "../utils/callContext";
 import { getSocket } from "../utils/socket";
 import { showToast } from "../utils/toastSlice";
@@ -17,7 +16,7 @@ import CallOverlay from "./CallOverlay";
 // Added: one-to-one audio/video calls.
 // Signaling (ring, accept, offer/answer, ICE candidates) goes over the existing
 // Socket.IO connection; audio/video goes peer to peer with WebRTC (or via TURN).
-// The server checks every rule (connections only, video needs Premium, busy, etc.);
+// The server checks every rule (connections only, busy, etc.);
 // the checks here only give quicker, friendlier messages.
 //
 // status: idle -> preparing (getting mic/camera) -> outgoing (ringing) -> connecting -> active
@@ -45,7 +44,6 @@ const nameOf = (peer) => peer?.firstName || "They";
 
 const CallProvider = ({ children }) => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const me = useSelector((store) => store.user);
   const myId = me?._id;
 
@@ -205,10 +203,6 @@ const CallProvider = ({ children }) => {
     if (callRef.current.status !== "idle") return toast("You're already in a call.");
     const unsupported = callSupportError();
     if (unsupported) return toast(unsupported);
-    if (kind === "video" && !me?.isPremium) {
-      toast("Video calling is a Premium feature. Audio calls are free for everyone.");
-      return navigate("/premium");
-    }
     if (!getSocket().connected) return toast("You're offline. Check your connection and try again.");
 
     update({ ...IDLE, status: "preparing", kind, role: "caller", peer });
@@ -233,7 +227,6 @@ const CallProvider = ({ children }) => {
     }
     if (!ack?.ok) {
       finish(ack?.message || "The call couldn't be started.");
-      if (ack?.reason === "premium_required") navigate("/premium");
       return;
     }
     update({ status: "outgoing", callId: ack.callId });

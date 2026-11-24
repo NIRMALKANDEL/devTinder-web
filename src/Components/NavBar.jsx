@@ -5,7 +5,6 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import { motion } from "motion/react";
 import Avatar from "./Avatar";
 import ThemeToggle from "./ThemeToggle";
-import ThemePicker from "./ThemePicker";
 import { CrownIcon, FlameIcon, LogoutIcon, SettingsIcon, UserIcon } from "./Icons";
 import { NAV_LINKS } from "../utils/navLinks";
 import { disconnectSocket } from "../utils/socket";
@@ -128,8 +127,8 @@ const NavBar = () => {
               Welcome <span className='font-semibold'>{user.firstName}</span>
             </div>
 
-            {/* Changed: full theme picker (color skin + light/dark) for logged-in users */}
-            <ThemePicker />
+            {/* Changed: light/dark switch only (the color-skin picker was removed) */}
+            <ThemeToggle />
 
             {/* Profile Dropdown */}
             <div className='dropdown dropdown-end'>

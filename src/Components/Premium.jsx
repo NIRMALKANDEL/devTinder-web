@@ -7,7 +7,7 @@ import PageHeader from "./PageHeader";
 import Avatar from "./Avatar";
 import SkillChips from "./SkillChips";
 import { PolicyNotice } from "./PolicyLayout";
-import { CheckIcon, CloseIcon, CrownIcon, EyeIcon, PhoneIcon, RefreshIcon, SparklesIcon, VideoIcon } from "./Icons";
+import { CheckIcon, CloseIcon, CrownIcon, EyeIcon, PhoneIcon, RefreshIcon, SparklesIcon } from "./Icons";
 import { BASE_URL } from "../utils/constants";
 import { getErrorMessage } from "../utils/api";
 import { addUser } from "../utils/userSlice";
@@ -30,19 +30,12 @@ const BENEFITS = [
     title: "More visibility",
     text: "Your profile is shown earlier in other developers' feeds, so more people see it. This improves your chances but can't guarantee connections.",
   },
-  {
-    Icon: VideoIcon,
-    title: "Video calling",
-    text: "Start video calls with your connections, right in DevTinder. Audio calls stay free for everyone.",
-  },
 ];
 
 const COMPARISON = [
   ["Profile, feed, connection requests and chat", true, true],
   ["Skill filters in the feed", true, true],
-  ["Audio calls with your connections", true, true],
-  ["Answer video calls from Premium members", true, true],
-  ["Start video calls with your connections", false, true],
+  ["Audio and video calls with your connections", true, true],
   ["5 daily developer recommendations", false, true],
   ["Shown earlier in other developers' feeds", false, true],
 ];
@@ -406,7 +399,7 @@ const Premium = () => {
     <div className='max-w-4xl mx-auto w-full'>
       <PageHeader
         title='DevTinder Premium'
-        subtitle={isPremium && user?.premiumExpiresAt ? `Active until ${formatDate(user.premiumExpiresAt)}` : "Get discovered, get recommended, get on a call"}
+        subtitle={isPremium && user?.premiumExpiresAt ? `Active until ${formatDate(user.premiumExpiresAt)}` : "Get discovered and get recommended"}
       />
 
       <motion.section
@@ -420,7 +413,7 @@ const Premium = () => {
           Get discovered by the <span className='text-gradient'>right developers</span>
         </h2>
         <p className='opacity-70 max-w-xl'>
-          Daily recommendations, more visibility in the feed, and video calls with your connections.
+          Daily recommendations and more visibility in the feed. Audio and video calls are free for everyone.
         </p>
 
         <div className='flex flex-col items-center gap-1 mt-2'>
@@ -524,8 +517,8 @@ const Premium = () => {
           About calls
         </h2>
         <p className='text-sm sm:text-base opacity-80'>
-          Call any of your connections from your chat or their profile. Audio calls are free for everyone; starting a
-          video call needs Premium. The other person always chooses whether to answer.
+          Call any of your connections from your chat or their profile. Audio and video calls are free for everyone.
+          The other person always chooses whether to answer.
         </p>
         <PolicyNotice title='Your privacy on calls'>
           Calls are never recorded and your phone number is never shared. Calls go directly between the two devices

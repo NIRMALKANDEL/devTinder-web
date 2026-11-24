@@ -6,6 +6,7 @@ import { addUser } from "../utils/userSlice";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { BASE_URL } from "../utils/constants";
 import { getErrorMessage } from "../utils/api";
+import GoogleSignIn from "./GoogleSignIn";
 import { EyeIcon, EyeOffIcon, FlameIcon, HeartIcon, InboxIcon, UsersIcon } from "./Icons";
 
 // UI: password input with a show/hide toggle
@@ -216,8 +217,25 @@ const Login = () => {
               <h2 className='text-2xl font-bold tracking-tight'>{title}</h2>
               <p className='text-sm opacity-60 mt-1'>{subtitle}</p>
 
+              {/* Added: sign up / log in with Google (hidden until Google is set up) */}
+              {!isForgotForm && (
+                <div className='mt-6'>
+                  <GoogleSignIn
+                    mode={isLoginForm ? "login" : "signup"}
+                    onSuccess={(data) => {
+                      dispatch(addUser(data?.payload));
+                      navigate(data?.isNew ? "/profile" : "/", { replace: true });
+                    }}
+                    onError={(message) => {
+                      setSuccess("");
+                      setError(message);
+                    }}
+                  />
+                </div>
+              )}
+
               <form
-                className='flex flex-col gap-4 mt-6'
+                className={`flex flex-col gap-4 ${isForgotForm ? "mt-6" : "mt-4"}`}
                 onSubmit={
                   isForgotForm
                     ? handleForgotPassword

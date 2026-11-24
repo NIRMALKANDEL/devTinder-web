@@ -15,7 +15,7 @@ import { disconnectSocket } from "../utils/socket";
 import PageHeader from "./PageHeader";
 import Avatar from "./Avatar";
 import Modal from "./ui/Modal";
-import { ThemePanel } from "./ThemePicker";
+import ThemeMode from "./ThemeMode";
 import { BanIcon, EyeIcon, EyeOffIcon, PaletteIcon, SettingsIcon, TrashIcon } from "./Icons";
 
 const tile = {
@@ -133,7 +133,7 @@ const Settings = () => {
             Theme
           </h2>
           <p className='text-sm opacity-60 -mt-1'>Changes apply to the whole app right away.</p>
-          <ThemePanel />
+          <ThemeMode />
         </motion.section>
 
         <motion.section custom={1} variants={tile} initial='hidden' animate='show' className='bento-tile' aria-labelledby='pw-title'>
