@@ -198,8 +198,20 @@ const CallProvider = ({ children }) => {
 
   // ---- actions ------------------------------------------------------------
 
+  // Added: ask once (on a click) so incoming calls can show a system notification later
+  const askNotifyPermission = () => {
+    try {
+      if ("Notification" in window && Notification.permission === "default") {
+        Notification.requestPermission().catch(() => {});
+      }
+    } catch {
+      // not supported
+    }
+  };
+
   const startCall = async (peer, kind) => {
     if (!peer?._id) return;
+    askNotifyPermission();
     if (callRef.current.status !== "idle") return toast("You're already in a call.");
     const unsupported = callSupportError();
     if (unsupported) return toast(unsupported);
@@ -235,6 +247,7 @@ const CallProvider = ({ children }) => {
   const acceptCall = async () => {
     const { callId, kind, status } = callRef.current;
     if (status !== "incoming") return;
+    askNotifyPermission();
     const unsupported = callSupportError();
     if (unsupported) {
       getSocket().emit("call:reject", { callId, reason: "unavailable" });

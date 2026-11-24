@@ -35,6 +35,68 @@ const Media = ({ stream, as = "video", muted = false, className = "" }) => {
   );
 };
 
+// Added: make an incoming call hard to miss. Plays a ring tone (Web Audio, no file),
+// flashes the tab title, and shows a system notification when the tab is in the
+// background and notifications are allowed. Everything stops when the call is answered.
+const useRinging = (active, name, kind) => {
+  useEffect(() => {
+    if (!active) return;
+    let ctx;
+    let timer;
+    const ring = () => {
+      try {
+        ctx ||= new (window.AudioContext || window.webkitAudioContext)();
+        ctx.resume?.();
+        const t = ctx.currentTime;
+        [0, 0.45].forEach((offset) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(880, t + offset);
+          osc.frequency.setValueAtTime(660, t + offset + 0.18);
+          gain.gain.setValueAtTime(0.0001, t + offset);
+          gain.gain.exponentialRampToValueAtTime(0.25, t + offset + 0.03);
+          gain.gain.exponentialRampToValueAtTime(0.0001, t + offset + 0.38);
+          osc.connect(gain).connect(ctx.destination);
+          osc.start(t + offset);
+          osc.stop(t + offset + 0.4);
+        });
+      } catch {
+        // audio blocked until the user has clicked the page once; the card still shows
+      }
+    };
+    ring();
+    timer = setInterval(ring, 2000);
+
+    const title = document.title;
+    const alertTitle = `Incoming ${kind} call from ${name}`;
+    const flash = setInterval(() => {
+      document.title = document.title === alertTitle ? title : alertTitle;
+    }, 1000);
+
+    let note;
+    try {
+      if (document.hidden && "Notification" in window && Notification.permission === "granted") {
+        note = new Notification(alertTitle, { body: "Open DevTinder to answer.", tag: "devtinder-call", requireInteraction: true });
+        note.onclick = () => {
+          window.focus();
+          note.close();
+        };
+      }
+    } catch {
+      // notifications not supported here
+    }
+
+    return () => {
+      clearInterval(timer);
+      clearInterval(flash);
+      document.title = title;
+      note?.close();
+      ctx?.close?.().catch(() => {});
+    };
+  }, [active, name, kind]);
+};
+
 // Re-renders every second while the call is live
 const useNow = (active) => {
   const [now, setNow] = useState(() => Date.now());
@@ -67,8 +129,16 @@ const IncomingCard = ({ call, acceptCall, rejectCall }) => {
   useEffect(() => {
     acceptRef.current?.focus();
   }, []);
+  useRinging(call.status === "incoming", name || "a connection", call.kind);
 
   return (
+    // Changed: centred card over a dimmed page (the small corner card was easy to miss)
+    <motion.div
+      key='incoming-backdrop'
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className='fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/50'>
     <motion.div
       role='alertdialog'
       aria-modal='false'
@@ -78,7 +148,7 @@ const IncomingCard = ({ call, acceptCall, rejectCall }) => {
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: -12, scale: 0.96 }}
       transition={{ type: "spring", stiffness: 380, damping: 30 }}
-      className='fixed z-[70] top-20 inset-x-3 sm:inset-x-auto sm:right-6 sm:w-96 liquid-glass rounded-3xl p-5'>
+      className='w-full max-w-sm bg-base-100 border border-hairline shadow-2xl rounded-3xl p-6'>
       <div className='flex items-center gap-4'>
         <span className='relative'>
           <motion.span
@@ -113,6 +183,7 @@ const IncomingCard = ({ call, acceptCall, rejectCall }) => {
           Accept
         </button>
       </div>
+    </motion.div>
     </motion.div>
   );
 };
